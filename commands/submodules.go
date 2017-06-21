@@ -1,4 +1,4 @@
-package submodules
+package commands
 
 import (
 	"fmt"
@@ -29,6 +29,15 @@ func loopSubmodules(path string, callback func(sub *git.Submodule) error) error 
 	for _, sub := range submodules {
 		callback(sub)
 	}
+	return nil
+}
+
+//LoopSubmodules ...
+func LoopSubmodules(callback func(sub *git.Submodule)) error {
+	loopSubmodules(".", func(sub *git.Submodule) error {
+		callback(sub)
+		return nil
+	})
 	return nil
 }
 
