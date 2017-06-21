@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/AlexsJones/kepler/submodules"
 	"github.com/AlexsJones/kepler/util"
@@ -19,6 +20,7 @@ const b string = `
 {{ .AnsiColor.Default }}
 {{ .AnsiColor.Default }} Kepler is a simple program for managing submodules
 {{ .AnsiColor.Default }} Type 'help' for commands!
+{{ .AnsiColor.Default }} Normal shell commands can be used here too e.g. pwd
 {{ .AnsiColor.Default }}
 `
 
@@ -27,20 +29,7 @@ func main() {
 
 	shell := ishell.New()
 	shell.SetHomeHistoryPath(".ishell_history")
-	shell.AddCmd(&ishell.Cmd{
-		Name: "init",
-		Help: "initialise submodules",
-		Func: func(c *ishell.Context) {
-			util.ShellCommand("git submodule update --recursive --init", ".")
-		},
-	})
-	shell.AddCmd(&ishell.Cmd{
-		Name: "update",
-		Help: "Update submodules in directory",
-		Func: func(c *ishell.Context) {
-			submodules.UpdateSubmodules(".")
-		},
-	})
+
 	shell.AddCmd(&ishell.Cmd{
 		Name: "exec",
 		Help: "Exec command in submodules <cmd> e.g. exec \"git reset --hard HEAD\"",
@@ -49,12 +38,12 @@ func main() {
 				fmt.Println("Please provide a command")
 				return
 			}
-			submodules.CommandSubmodules(c.Args[0])
+			submodules.CommandSubmodules(strings.Join(c.Args, " "))
 		},
 	})
 	shell.NotFound(func(arg1 *ishell.Context) {
 
-		util.ShellCommand(arg1.Args[0], ".")
+		util.ShellCommand(strings.Join(arg1.Args, " "), "")
 	})
 	shell.Run()
 }
