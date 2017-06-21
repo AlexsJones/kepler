@@ -26,7 +26,7 @@ func main() {
 	banner.Init(os.Stdout, true, true, bytes.NewBufferString(b))
 
 	shell := ishell.New()
-
+	shell.SetHomeHistoryPath(".ishell_history")
 	shell.AddCmd(&ishell.Cmd{
 		Name: "init",
 		Help: "initialise submodules",
@@ -51,6 +51,10 @@ func main() {
 			}
 			submodules.CommandSubmodules(c.Args[0])
 		},
+	})
+	shell.NotFound(func(arg1 *ishell.Context) {
+
+		util.ShellCommand(arg1.Args[0], ".")
 	})
 	shell.Run()
 }
