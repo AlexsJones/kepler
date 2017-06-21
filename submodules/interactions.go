@@ -3,8 +3,8 @@ package submodules
 import (
 	"fmt"
 	"os"
-	"os/exec"
 
+	"github.com/AlexsJones/kepler/util"
 	git "gopkg.in/libgit2/git2go.v25"
 )
 
@@ -33,26 +33,19 @@ func UpdateSubmodules(path string) error {
 			FetchOptions:          &git.FetchOptions{},
 			CloneCheckoutStrategy: git.CheckoutForce | git.CheckoutUpdateSubmodules | git.CheckoutSafe,
 		})
-		sub.FetchRecurseSubmodules()
-
 		return nil
 	})
 	return nil
 }
 
 //CommandSubmodules ...
-func CommandSubmodules(path string, output string) error {
+func CommandSubmodules(output string) error {
 
-	loopSubmodules(path, func(sub *git.Submodule, name string) error {
-		cmd := exec.Command("bash", "-c", output)
-		cmd.Dir = sub.Path()
-		out, err := cmd.Output()
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		fmt.Printf(string(out))
+	loopSubmodules(".", func(sub *git.Submodule, name string) error {
+
+		util.ShellCommand(output, sub.Path())
+
 		return nil
 	})
-
 	return nil
 }
