@@ -49,7 +49,7 @@ func main() {
 	})
 	shell.AddCmd(&ishell.Cmd{
 		Name: "usage",
-		Help: "Find usage in submodules of a certain package <string>",
+		Help: "Find usage in submodules of a certain package e.g. usage mocha",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) < 1 {
 				fmt.Println("Find a package usage in submodule package.json e.g. usage mocha")
@@ -84,7 +84,7 @@ func main() {
 	})
 	shell.AddCmd(&ishell.Cmd{
 		Name: "exec",
-		Help: "Exec command in submodules <cmd> e.g. exec \"git reset --hard HEAD\"",
+		Help: "Exec command in submodules <cmd> e.g. exec git reset --hard HEAD",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) < 1 {
 				fmt.Println("Please provide a command")
