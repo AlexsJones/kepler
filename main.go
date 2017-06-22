@@ -35,7 +35,7 @@ func main() {
 		Help: "Switch selected packages to use local links e.g. fix mycompany@git",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) < 2 {
-				fmt.Println("Please give a target package string to try to convert to a file link <prefix> <string> e.g. ../../ googleremotes.git")
+				fmt.Println("Please give a target package string to try to convert to a file link <prefix> <string> e.g. file ../../ googleremotes.git")
 				return
 			}
 			commands.LoopSubmodules(func(sub *git.Submodule) {
@@ -43,6 +43,25 @@ func main() {
 					fmt.Println(err.Error())
 				} else {
 					fmt.Printf("- Link fixed: %s\n", sub.Config().Path)
+				}
+			})
+		},
+	})
+	shell.AddCmd(&ishell.Cmd{
+		Name: "usage",
+		Help: "Find usage in submodules of a certain package <string>",
+		Func: func(c *ishell.Context) {
+			if len(c.Args) < 1 {
+				fmt.Println("Find a package usage in submodule package.json e.g. usage mocha")
+				return
+			}
+			commands.LoopSubmodules(func(sub *git.Submodule) {
+				if has, err := commands.HasPackage(sub.Config().Path, "package.json", c.Args[0]); err != nil {
+
+				} else {
+					if has {
+						fmt.Printf("Found usage in: %s\n", sub.Config().Name)
+					}
 				}
 			})
 		},
@@ -57,9 +76,8 @@ func main() {
 			}
 			commands.LoopSubmodules(func(sub *git.Submodule) {
 				if err := commands.FixLinks(sub.Config().Path, "package.json", "", c.Args[0], true); err != nil {
-					fmt.Println(err.Error())
 				} else {
-					fmt.Printf("- Link fixed: %s\n", sub.Config().Path)
+					fmt.Printf("- Deleted in: %s\n", sub.Config().Path)
 				}
 			})
 		},
