@@ -31,15 +31,15 @@ func main() {
 	shell.SetHomeHistoryPath(".ishell_history")
 
 	shell.AddCmd(&ishell.Cmd{
-		Name: "fix",
-		Help: "Fix selected packages to use local links e.g. fix mycompany@git",
+		Name: "file",
+		Help: "Switch selected packages to use local links e.g. fix mycompany@git",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) < 1 {
 				fmt.Println("Please give a target package string to try to convert to a file link")
 				return
 			}
 			commands.LoopSubmodules(func(sub *git.Submodule) {
-				if err := commands.FixLinks(sub.Config().Path, "package.json", c.Args[0]); err != nil {
+				if err := commands.FixLinks(sub.Config().Path, "package.json", c.Args[0], false); err != nil {
 					fmt.Println(err.Error())
 				} else {
 					fmt.Printf("- Link fixed: %s\n", sub.Config().Path)
@@ -47,7 +47,23 @@ func main() {
 			})
 		},
 	})
-
+	shell.AddCmd(&ishell.Cmd{
+		Name: "delete",
+		Help: "Dlete selected packages that match the <input string> e.g. Google.git",
+		Func: func(c *ishell.Context) {
+			if len(c.Args) < 1 {
+				fmt.Println("Please give a target package string to to remove")
+				return
+			}
+			commands.LoopSubmodules(func(sub *git.Submodule) {
+				if err := commands.FixLinks(sub.Config().Path, "package.json", c.Args[0], true); err != nil {
+					fmt.Println(err.Error())
+				} else {
+					fmt.Printf("- Link fixed: %s\n", sub.Config().Path)
+				}
+			})
+		},
+	})
 	shell.AddCmd(&ishell.Cmd{
 		Name: "exec",
 		Help: "Exec command in submodules <cmd> e.g. exec \"git reset --hard HEAD\"",

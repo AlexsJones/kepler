@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+//PackageJSON structure of package.json
 type PackageJSON struct {
 	Name            string            `json:"name"`
 	Version         string            `json:"version"`
@@ -21,7 +22,7 @@ type PackageJSON struct {
 }
 
 //FixLinks ...
-func FixLinks(subPath string, filename string, target string) error {
+func FixLinks(subPath string, filename string, target string, shouldDelete bool) error {
 
 	filepath := path.Join(subPath, filename)
 
@@ -39,13 +40,17 @@ func FixLinks(subPath string, filename string, target string) error {
 
 	for key, value := range packagejson.Dependencies {
 		if strings.Contains(value, target) {
-			spli := strings.Split(value, "/")
-			subspli := strings.Split(spli[len(spli[1:])], ".")
-			foundEntry := subspli[0]
-			foundEntry = strings.TrimSuffix(foundEntry, "\"")
-			syntax := "file:%s"
-			value := fmt.Sprintf(syntax, foundEntry)
-			packagejson.Dependencies[key] = value
+			if shouldDelete {
+				delete(packagejson.Dependencies, key)
+			} else {
+				spli := strings.Split(value, "/")
+				subspli := strings.Split(spli[len(spli[1:])], ".")
+				foundEntry := subspli[0]
+				foundEntry = strings.TrimSuffix(foundEntry, "\"")
+				syntax := "file:%s"
+				value := fmt.Sprintf(syntax, foundEntry)
+				packagejson.Dependencies[key] = value
+			}
 		}
 	}
 	o, err := json.MarshalIndent(packagejson, "", "    ")
