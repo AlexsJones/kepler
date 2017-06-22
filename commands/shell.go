@@ -1,4 +1,4 @@
-package util
+package commands
 
 import (
 	"bufio"
@@ -37,7 +37,6 @@ func ShellCommand(command string, path string) {
 
 	err = cmd.Wait()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error waiting for Cmd", err)
 		go func() {
 			for errScanner.Scan() {
 				fmt.Printf("%s\n", errScanner.Text())

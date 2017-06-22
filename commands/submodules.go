@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/AlexsJones/kepler/util"
-
 	"gopkg.in/src-d/go-git.v4"
 )
 
@@ -46,7 +44,7 @@ func CommandSubmodules(output string) error {
 
 	loopSubmodules(".", func(sub *git.Submodule) error {
 
-		util.ShellCommand(output, sub.Config().Path)
+		ShellCommand(output, sub.Config().Path)
 
 		return nil
 	})
