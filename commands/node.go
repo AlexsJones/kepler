@@ -22,7 +22,7 @@ type PackageJSON struct {
 }
 
 //FixLinks ...
-func FixLinks(subPath string, filename string, target string, shouldDelete bool) error {
+func FixLinks(subPath string, filename string, prefix string, target string, shouldDelete bool) error {
 
 	filepath := path.Join(subPath, filename)
 
@@ -47,8 +47,8 @@ func FixLinks(subPath string, filename string, target string, shouldDelete bool)
 				subspli := strings.Split(spli[len(spli[1:])], ".")
 				foundEntry := subspli[0]
 				foundEntry = strings.TrimSuffix(foundEntry, "\"")
-				syntax := "file:%s"
-				value := fmt.Sprintf(syntax, foundEntry)
+				syntax := "file:%s%s"
+				value := fmt.Sprintf(syntax, prefix, foundEntry)
 				packagejson.Dependencies[key] = value
 			}
 		}
