@@ -5,13 +5,20 @@ _  _  ____  ____  __    ____  ____
 (_)\_)(____)(__)  (____)(____)(_)\_)
 ```
 
-Designed to do very few things.
+Designed to do a few things well...
 
-- Allow you to batch execute commands in submodules
-- Allow you to replace git package deps with `file` refs e.g. `git@github.com/tools/coolpackage.git` becomes `file:coolpackage`
-  This is to help facilitate building from a meta-repository for multiple microservices in node that depend on each other.
-- Mass delete selected packages by name
+```
+Commands:
+  clear       clear the screen
+  delete      Delete selected packages that match the <input string> e.g. Google.git
+  exec        Exec command in submodules <cmd> e.g. exec "git reset --hard HEAD"
+  exit        exit the program
+  file        Switch selected packages to use local links e.g. fix mycompany@git
+  help        display help
+  usage       Find usage in submodules of a certain package <string>
 
+
+```
 ## Installation
 
 Either:
