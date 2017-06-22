@@ -63,5 +63,7 @@ func main() {
 		// Pass through to bash
 		commands.ShellCommand(strings.Join(arg1.Args, " "), "")
 	})
-	shell.Run()
+	shell.Start()
+
+	shell.Wait()
 }
