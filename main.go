@@ -4,15 +4,20 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"strings"
+
+	"golang.org/x/oauth2"
 
 	"github.com/AlexsJones/kepler/commands/node"
 	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/submodules"
+	"github.com/AlexsJones/kepler/util"
 	"github.com/abiosoft/ishell"
 	"github.com/dimiro1/banner"
-	"golang.org/x/oauth2"
+	"github.com/fatih/color"
+	"github.com/google/go-github/github"
 	"gopkg.in/src-d/go-git.v4"
 )
 
@@ -78,8 +83,8 @@ func main() {
 		},
 	})
 	shell.AddCmd(&ishell.Cmd{
-		Name: "delete",
-		Help: "Delete selected packages that match the <input string> e.g. Google.git",
+		Name: "remove",
+		Help: "Remove selected packages that match the <input string> e.g. Google.git",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) < 1 {
 				fmt.Println("Please give a target package string to to remove")
@@ -88,9 +93,18 @@ func main() {
 			submodules.LoopSubmodules(func(sub *git.Submodule) {
 				if err := node.FixLinks(sub.Config().Path, "package.json", "", c.Args[0], true); err != nil {
 				} else {
-					fmt.Printf("- Deleted in: %s\n", sub.Config().Path)
+					fmt.Printf("- Removed in: %s\n", sub.Config().Path)
 				}
 			})
+		},
+	})
+	shell.AddCmd(&ishell.Cmd{
+		Name: "purge",
+		Help: "Purge all kepler storage",
+		Func: func(c *ishell.Context) {
+
+			storage.Delete()
+			color.Blue("Deleted local storage")
 		},
 	})
 	shell.AddCmd(&ishell.Cmd{
@@ -98,18 +112,46 @@ func main() {
 		Help: "Login to github",
 		Func: func(c *ishell.Context) {
 
-			c.ShowPrompt(false)
-			defer c.ShowPrompt(true)
-			c.Print("Access token: ")
-			token := c.ReadPassword()
+			var localStorage *storage.Storage
+			b, err := storage.Exists()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+			if b {
+				//Load and save
+				localStorage, err = storage.Load()
+				if err != nil {
+					return
+				}
+				log.Println("Loaded from storage")
+
+			} else {
+				c.ShowPrompt(false)
+				defer c.ShowPrompt(true)
+				c.Print("Access token: ")
+				token := c.ReadPassword()
+				log.Println("Creating new storage object...")
+				localStorage = storage.NewStorage()
+				localStorage.Github.AccessToken = token
+				storage.Save(localStorage)
+			}
+
 			ctx := context.Background()
 			ts := oauth2.StaticTokenSource(
-				&oauth2.Token{AccessToken: token},
+				&oauth2.Token{AccessToken: localStorage.Github.AccessToken},
 			)
-			_ = oauth2.NewClient(ctx, ts)
-			c.Println("Authentication Successful.")
+			tc := oauth2.NewClient(ctx, ts)
+			client := github.NewClient(tc)
+			_, _, err = client.Repositories.List(ctx, "", nil)
+			if err != nil {
+				color.Red("Could not authenticate; please purge and login again")
+				color.Red(err.Error())
+				return
+			}
+			color.Green("Authentication Successful.")
 		},
 	})
+
 	shell.NotFound(func(arg1 *ishell.Context) {
 		// Pass through to bash
 		sh.ShellCommand(strings.Join(arg1.Args, " "), "", false)
