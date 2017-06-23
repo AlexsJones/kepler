@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os/exec"
+
+	"github.com/fatih/color"
 )
 
 //ShellCommand ...
@@ -25,7 +27,7 @@ func ShellCommand(command string, path string) {
 	}()
 	go func() {
 		for errScanner.Scan() {
-			fmt.Printf("%s\n", errScanner.Text())
+			color.Red("[%s]%s\n", path, errScanner.Text())
 		}
 	}()
 	err := cmd.Start()
