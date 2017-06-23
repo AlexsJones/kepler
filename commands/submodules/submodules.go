@@ -3,13 +3,29 @@ package submodules
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/AlexsJones/kepler/commands/shell"
+	"github.com/abiosoft/ishell"
 	"github.com/fatih/color"
 
 	"gopkg.in/src-d/go-git.v4"
 )
 
+//AddCommands to this module
+func AddCommands(shell *ishell.Shell) {
+	shell.AddCmd(&ishell.Cmd{
+		Name: "exec",
+		Help: "Exec command in submodules <cmd> e.g. exec git reset --hard HEAD",
+		Func: func(c *ishell.Context) {
+			if len(c.Args) < 1 {
+				fmt.Println("Please provide a command")
+				return
+			}
+			CommandSubmodules(strings.Join(c.Args, " "))
+		},
+	})
+}
 func loopSubmodules(path string, callback func(sub *git.Submodule) error) error {
 
 	r, err := git.PlainOpen(path)
