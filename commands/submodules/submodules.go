@@ -1,9 +1,10 @@
-package commands
+package submodules
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/AlexsJones/kepler/commands/shell"
 	"github.com/fatih/color"
 
 	"gopkg.in/src-d/go-git.v4"
@@ -49,7 +50,7 @@ func CommandSubmodules(output string) error {
 
 	loopSubmodules(".", func(sub *git.Submodule) error {
 
-		ShellCommand(output, sub.Config().Path, false)
+		sh.ShellCommand(output, sub.Config().Path, false)
 
 		return nil
 	})

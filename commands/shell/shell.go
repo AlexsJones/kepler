@@ -1,4 +1,4 @@
-package commands
+package sh
 
 import (
 	"bufio"
