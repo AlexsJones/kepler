@@ -6,8 +6,22 @@ import (
 	"os"
 	p "path"
 
+	"github.com/abiosoft/ishell"
+	"github.com/fatih/color"
 	homedir "github.com/mitchellh/go-homedir"
 )
+
+//AddCommands to this module
+func AddCommands(shell *ishell.Shell) {
+	shell.AddCmd(&ishell.Cmd{
+		Name: "purge",
+		Help: "Purge all kepler storage",
+		Func: func(c *ishell.Context) {
+			Delete()
+			color.Blue("Deleted local storage")
+		},
+	})
+}
 
 var store = ".kepler"
 

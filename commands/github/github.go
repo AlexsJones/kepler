@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/AlexsJones/kepler/util"
+	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/abiosoft/ishell"
 	"github.com/fatih/color"
 	"github.com/google/go-github/github"

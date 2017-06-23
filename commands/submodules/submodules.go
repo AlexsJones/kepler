@@ -5,10 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AlexsJones/kepler/commands/shell"
+	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/abiosoft/ishell"
 	"github.com/fatih/color"
-
 	"gopkg.in/src-d/go-git.v4"
 )
 

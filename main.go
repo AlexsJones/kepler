@@ -8,11 +8,10 @@ import (
 	"github.com/AlexsJones/kepler/commands/github"
 	"github.com/AlexsJones/kepler/commands/node"
 	sh "github.com/AlexsJones/kepler/commands/shell"
+	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kepler/commands/submodules"
-	"github.com/AlexsJones/kepler/util"
 	"github.com/abiosoft/ishell"
 	"github.com/dimiro1/banner"
-	"github.com/fatih/color"
 )
 
 const b string = `
@@ -34,19 +33,12 @@ func main() {
 	shell.SetPrompt("[kepler]>>>")
 	shell.SetHomeHistoryPath(".ishell_history")
 
+	//Modules to add ----------------------------
 	node.AddCommands(shell)
 	github.AddCommands(shell)
 	submodules.AddCommands(shell)
-
-	shell.AddCmd(&ishell.Cmd{
-		Name: "purge",
-		Help: "Purge all kepler storage",
-		Func: func(c *ishell.Context) {
-
-			storage.Delete()
-			color.Blue("Deleted local storage")
-		},
-	})
+	storage.AddCommands(shell)
+	//-------------------------------------------
 	shell.NotFound(func(arg1 *ishell.Context) {
 		sh.ShellCommand(strings.Join(arg1.Args, " "), "", false)
 	})
