@@ -21,11 +21,11 @@ type PackageJSON struct {
 	DevDependencies map[string]string `json:"devDependencies"`
 }
 
-func recursePackages(p *PackageJSON, callback func(key string, value string)) error {
+func recursePackages(p *PackageJSON, callback func(moduleName string, key string, value string)) error {
 
 	for key, value := range p.Dependencies {
 
-		callback(key, value)
+		callback(p.Name, key, value)
 	}
 	return nil
 }
@@ -46,9 +46,10 @@ func HasPackage(subPath string, filename string, target string) (bool, error) {
 	json.Unmarshal(b, &packagejson)
 
 	var wasFound = false
-	recursePackages(&packagejson, func(key string, value string) {
+	recursePackages(&packagejson, func(moduleName string, key string, value string) {
 		if strings.Contains(key, target) || strings.Contains(value, target) {
 			wasFound = true
+			fmt.Printf("Found usage in: %s, version is %s\n", moduleName, value)
 			return
 		}
 	})
@@ -71,7 +72,7 @@ func FixLinks(subPath string, filename string, prefix string, target string, sho
 	json.Unmarshal(b, &packagejson)
 
 	//processing
-	recursePackages(&packagejson, func(key string, value string) {
+	recursePackages(&packagejson, func(moduleName string, key string, value string) {
 		if strings.Contains(value, target) {
 			if shouldDelete {
 				delete(packagejson.Dependencies, key)

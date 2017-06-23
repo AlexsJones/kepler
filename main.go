@@ -28,6 +28,7 @@ func main() {
 	banner.Init(os.Stdout, true, true, bytes.NewBufferString(b))
 
 	shell := ishell.New()
+	shell.SetPrompt("[kepler]>>>")
 	shell.SetHomeHistoryPath(".ishell_history")
 
 	shell.AddCmd(&ishell.Cmd{
@@ -56,12 +57,8 @@ func main() {
 				return
 			}
 			commands.LoopSubmodules(func(sub *git.Submodule) {
-				if has, err := commands.HasPackage(sub.Config().Path, "package.json", c.Args[0]); err != nil {
+				if _, err := commands.HasPackage(sub.Config().Path, "package.json", c.Args[0]); err != nil {
 
-				} else {
-					if has {
-						fmt.Printf("Found usage in: %s\n", sub.Config().Name)
-					}
 				}
 			})
 		},
