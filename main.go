@@ -2,18 +2,16 @@ package main
 
 import (
 	"bytes"
-	"context"
-	"fmt"
 	"os"
 	"strings"
 
+	"github.com/AlexsJones/kepler/commands/github"
 	"github.com/AlexsJones/kepler/commands/node"
 	sh "github.com/AlexsJones/kepler/commands/shell"
+	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kepler/commands/submodules"
 	"github.com/abiosoft/ishell"
 	"github.com/dimiro1/banner"
-	"golang.org/x/oauth2"
-	"gopkg.in/src-d/go-git.v4"
 )
 
 const b string = `
@@ -35,83 +33,13 @@ func main() {
 	shell.SetPrompt("[kepler]>>>")
 	shell.SetHomeHistoryPath(".ishell_history")
 
-	shell.AddCmd(&ishell.Cmd{
-		Name: "exec",
-		Help: "Exec command in submodules <cmd> e.g. exec git reset --hard HEAD",
-		Func: func(c *ishell.Context) {
-			if len(c.Args) < 1 {
-				fmt.Println("Please provide a command")
-				return
-			}
-			submodules.CommandSubmodules(strings.Join(c.Args, " "))
-		},
-	})
-	shell.AddCmd(&ishell.Cmd{
-		Name: "file",
-		Help: "Switch selected packages to use local links e.g. fix mycompany@git",
-		Func: func(c *ishell.Context) {
-			if len(c.Args) < 2 {
-				fmt.Println("Please give a target package string to try to convert to a file link <prefix> <string> e.g. file ../../ googleremotes.git")
-				return
-			}
-			submodules.LoopSubmodules(func(sub *git.Submodule) {
-				if err := node.FixLinks(sub.Config().Path, "package.json", c.Args[0], c.Args[1], false); err != nil {
-					fmt.Println(err.Error())
-				} else {
-					fmt.Printf("- Link fixed: %s\n", sub.Config().Path)
-				}
-			})
-		},
-	})
-	shell.AddCmd(&ishell.Cmd{
-		Name: "usage",
-		Help: "Find usage in submodules of a certain package e.g. usage mocha",
-		Func: func(c *ishell.Context) {
-			if len(c.Args) < 1 {
-				fmt.Println("Find a package usage in submodule package.json e.g. usage mocha")
-				return
-			}
-			submodules.LoopSubmodules(func(sub *git.Submodule) {
-				if _, err := node.HasPackage(sub.Config().Path, "package.json", c.Args[0]); err != nil {
-				}
-			})
-		},
-	})
-	shell.AddCmd(&ishell.Cmd{
-		Name: "delete",
-		Help: "Delete selected packages that match the <input string> e.g. Google.git",
-		Func: func(c *ishell.Context) {
-			if len(c.Args) < 1 {
-				fmt.Println("Please give a target package string to to remove")
-				return
-			}
-			submodules.LoopSubmodules(func(sub *git.Submodule) {
-				if err := node.FixLinks(sub.Config().Path, "package.json", "", c.Args[0], true); err != nil {
-				} else {
-					fmt.Printf("- Deleted in: %s\n", sub.Config().Path)
-				}
-			})
-		},
-	})
-	shell.AddCmd(&ishell.Cmd{
-		Name: "login",
-		Help: "Login to github",
-		Func: func(c *ishell.Context) {
-
-			c.ShowPrompt(false)
-			defer c.ShowPrompt(true)
-			c.Print("Access token: ")
-			token := c.ReadPassword()
-			ctx := context.Background()
-			ts := oauth2.StaticTokenSource(
-				&oauth2.Token{AccessToken: token},
-			)
-			_ = oauth2.NewClient(ctx, ts)
-			c.Println("Authentication Successful.")
-		},
-	})
+	//Modules to add ----------------------------
+	node.AddCommands(shell)
+	github.AddCommands(shell)
+	submodules.AddCommands(shell)
+	storage.AddCommands(shell)
+	//-------------------------------------------
 	shell.NotFound(func(arg1 *ishell.Context) {
-		// Pass through to bash
 		sh.ShellCommand(strings.Join(arg1.Args, " "), "", false)
 	})
 
