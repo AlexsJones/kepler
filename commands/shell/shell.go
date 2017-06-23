@@ -1,14 +1,15 @@
-package commands
+package sh
 
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"os/exec"
+
+	"github.com/fatih/color"
 )
 
 //ShellCommand ...
-func ShellCommand(command string, path string) {
+func ShellCommand(command string, path string, validated bool) {
 	cmd := exec.Command("bash", "-c", command)
 	if path != "" {
 		cmd.Dir = path
@@ -24,24 +25,17 @@ func ShellCommand(command string, path string) {
 			fmt.Printf("%s\n", scanner.Text())
 		}
 	}()
+	go func() {
+		for errScanner.Scan() {
+			fmt.Printf("%s\n", errScanner.Text())
+		}
+	}()
 	err := cmd.Start()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error starting Cmd", err)
-		go func() {
-			for errScanner.Scan() {
-				fmt.Printf("%s\n", errScanner.Text())
-			}
-		}()
-		return
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		go func() {
-			for errScanner.Scan() {
-				fmt.Printf("%s\n", errScanner.Text())
-			}
-		}()
-		return
+		fmt.Println(err.Error())
+	} else {
+		if validated {
+			color.Green("[%s]OK\n", path)
+		}
 	}
 }

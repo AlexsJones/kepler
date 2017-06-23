@@ -1,8 +1,11 @@
-package commands
+package submodules
 
 import (
 	"fmt"
 	"os"
+
+	"github.com/AlexsJones/kepler/commands/shell"
+	"github.com/fatih/color"
 
 	"gopkg.in/src-d/go-git.v4"
 )
@@ -27,6 +30,9 @@ func loopSubmodules(path string, callback func(sub *git.Submodule) error) error 
 	for _, sub := range submodules {
 		callback(sub)
 	}
+	if len(submodules) == 0 {
+		color.Red("No submodules found")
+	}
 	return nil
 }
 
@@ -44,7 +50,7 @@ func CommandSubmodules(output string) error {
 
 	loopSubmodules(".", func(sub *git.Submodule) error {
 
-		ShellCommand(output, sub.Config().Path)
+		sh.ShellCommand(output, sub.Config().Path, false)
 
 		return nil
 	})
