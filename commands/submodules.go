@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fatih/color"
+
 	"gopkg.in/src-d/go-git.v4"
 )
 
@@ -26,6 +28,9 @@ func loopSubmodules(path string, callback func(sub *git.Submodule) error) error 
 	}
 	for _, sub := range submodules {
 		callback(sub)
+	}
+	if len(submodules) == 0 {
+		color.Red("No submodules found")
 	}
 	return nil
 }

@@ -32,6 +32,17 @@ func main() {
 	shell.SetHomeHistoryPath(".ishell_history")
 
 	shell.AddCmd(&ishell.Cmd{
+		Name: "exec",
+		Help: "Exec command in submodules <cmd> e.g. exec git reset --hard HEAD",
+		Func: func(c *ishell.Context) {
+			if len(c.Args) < 1 {
+				fmt.Println("Please provide a command")
+				return
+			}
+			commands.CommandSubmodules(strings.Join(c.Args, " "))
+		},
+	})
+	shell.AddCmd(&ishell.Cmd{
 		Name: "file",
 		Help: "Switch selected packages to use local links e.g. fix mycompany@git",
 		Func: func(c *ishell.Context) {
@@ -58,7 +69,6 @@ func main() {
 			}
 			commands.LoopSubmodules(func(sub *git.Submodule) {
 				if _, err := commands.HasPackage(sub.Config().Path, "package.json", c.Args[0]); err != nil {
-
 				}
 			})
 		},
@@ -77,17 +87,6 @@ func main() {
 					fmt.Printf("- Deleted in: %s\n", sub.Config().Path)
 				}
 			})
-		},
-	})
-	shell.AddCmd(&ishell.Cmd{
-		Name: "exec",
-		Help: "Exec command in submodules <cmd> e.g. exec git reset --hard HEAD",
-		Func: func(c *ishell.Context) {
-			if len(c.Args) < 1 {
-				fmt.Println("Please provide a command")
-				return
-			}
-			commands.CommandSubmodules(strings.Join(c.Args, " "))
 		},
 	})
 	shell.NotFound(func(arg1 *ishell.Context) {
