@@ -91,9 +91,13 @@ func main() {
 	})
 	shell.NotFound(func(arg1 *ishell.Context) {
 		// Pass through to bash
-		commands.ShellCommand(strings.Join(arg1.Args, " "), "")
+		commands.ShellCommand(strings.Join(arg1.Args, " "), "", false)
 	})
-	shell.Start()
 
-	shell.Wait()
+	if len(os.Args) > 1 && os.Args[1] == "unattended" {
+		shell.Process(os.Args[2:]...)
+	} else {
+		shell.Start()
+		shell.Wait()
+	}
 }

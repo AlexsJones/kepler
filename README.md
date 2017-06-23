@@ -31,3 +31,11 @@ or fetch source and run
 ```
 godep restore
 ```
+
+## Non-CLI mode
+
+To run in a CI or as a one time command
+
+```
+kepler unattended usage yar
+```

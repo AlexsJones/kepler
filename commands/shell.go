@@ -9,7 +9,7 @@ import (
 )
 
 //ShellCommand ...
-func ShellCommand(command string, path string) {
+func ShellCommand(command string, path string, validated bool) {
 	cmd := exec.Command("bash", "-c", command)
 	if path != "" {
 		cmd.Dir = path
@@ -33,7 +33,10 @@ func ShellCommand(command string, path string) {
 	err := cmd.Start()
 	if err != nil {
 		fmt.Println(err.Error())
-		return
+	} else {
+		if validated {
+			color.Green("[%s]OK\n", path)
+		}
 	}
 
 }

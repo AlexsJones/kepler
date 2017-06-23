@@ -49,7 +49,7 @@ func CommandSubmodules(output string) error {
 
 	loopSubmodules(".", func(sub *git.Submodule) error {
 
-		ShellCommand(output, sub.Config().Path)
+		ShellCommand(output, sub.Config().Path, false)
 
 		return nil
 	})
