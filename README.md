@@ -11,13 +11,11 @@ Designed to do a few things well...
 Commands:
   clear       clear the screen
   delete      Delete selected packages that match the <input string> e.g. Google.git
-  exec        Exec command in submodules <cmd> e.g. exec "git reset --hard HEAD"
+  exec        Exec command in submodules <cmd> e.g. exec git reset --hard HEAD
   exit        exit the program
   file        Switch selected packages to use local links e.g. fix mycompany@git
   help        display help
-  usage       Find usage in submodules of a certain package <string>
-
-
+  usage       Find usage in submodules of a certain package e.g. usage mocha
 ```
 ## Installation
 

@@ -27,7 +27,7 @@ func ShellCommand(command string, path string, validated bool) {
 	}()
 	go func() {
 		for errScanner.Scan() {
-			color.Red("[%s]%s\n", path, errScanner.Text())
+			fmt.Printf("%s\n", errScanner.Text())
 		}
 	}()
 	err := cmd.Start()
@@ -38,5 +38,4 @@ func ShellCommand(command string, path string, validated bool) {
 			color.Green("[%s]OK\n", path)
 		}
 	}
-
 }
