@@ -14,9 +14,9 @@ import (
 )
 
 //AddCommands for this module
-func AddCommands(shell *ishell.Shell) {
+func AddCommands(shell *ishell.Shell) string {
 	shell.AddCmd(&ishell.Cmd{
-		Name: "file",
+		Name: "npm-file",
 		Help: "Switch selected packages to use local links e.g. fix mycompany@git",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) < 2 {
@@ -33,7 +33,7 @@ func AddCommands(shell *ishell.Shell) {
 		},
 	})
 	shell.AddCmd(&ishell.Cmd{
-		Name: "remove",
+		Name: "npm-remove",
 		Help: "Remove selected packages that match the <input string> e.g. Google.git",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) < 1 {
@@ -49,7 +49,7 @@ func AddCommands(shell *ishell.Shell) {
 		},
 	})
 	shell.AddCmd(&ishell.Cmd{
-		Name: "usage",
+		Name: "npm-usage",
 		Help: "Find usage in submodules of a certain package e.g. usage mocha",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) < 1 {
@@ -62,6 +62,7 @@ func AddCommands(shell *ishell.Shell) {
 			})
 		},
 	})
+	return "node"
 }
 
 //PackageJSON structure of package.json

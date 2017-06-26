@@ -12,15 +12,16 @@ import (
 )
 
 //AddCommands to this module
-func AddCommands(shell *ishell.Shell) {
+func AddCommands(shell *ishell.Shell) string {
 	shell.AddCmd(&ishell.Cmd{
-		Name: "purge",
+		Name: "storage-purge",
 		Help: "Purge all kepler storage",
 		Func: func(c *ishell.Context) {
 			Delete()
 			color.Blue("Deleted local storage")
 		},
 	})
+	return "storage"
 }
 
 var store = ".kepler"
@@ -33,6 +34,8 @@ type Storage struct {
 //Github specific sub structure
 type Github struct {
 	AccessToken string `json:"accesstoken"`
+	IssueNumber string `json:"issuenumber"`
+	IssueRepo   string `json:"issuerepo"`
 }
 
 //NewStorage object

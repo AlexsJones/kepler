@@ -1,12 +1,22 @@
-package shell
+package sh
 
 import (
 	"bufio"
 	"fmt"
 	"os/exec"
+	"strings"
 
+	"github.com/abiosoft/ishell"
 	"github.com/fatih/color"
 )
+
+//AddCommands ...
+func AddCommands(shell *ishell.Shell) string {
+	shell.NotFound(func(arg1 *ishell.Context) {
+		ShellCommand(strings.Join(arg1.Args, " "), "", false)
+	})
+	return "sh"
+}
 
 //ShellCommand ...
 func ShellCommand(command string, path string, validated bool) {
@@ -38,4 +48,5 @@ func ShellCommand(command string, path string, validated bool) {
 			color.Green("[%s]OK\n", path)
 		}
 	}
+
 }

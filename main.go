@@ -3,11 +3,9 @@ package main
 import (
 	"bytes"
 	"os"
-	"strings"
 
 	"github.com/AlexsJones/kepler/commands/github"
 	"github.com/AlexsJones/kepler/commands/node"
-	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kepler/commands/submodules"
 	"github.com/abiosoft/ishell"
@@ -34,14 +32,20 @@ func main() {
 	shell.SetHomeHistoryPath(".ishell_history")
 
 	//Modules to add ----------------------------
-	node.AddCommands(shell)
-	github.AddCommands(shell)
-	submodules.AddCommands(shell)
-	storage.AddCommands(shell)
+
+	commands := []string{
+		node.AddCommands(shell),
+		github.AddCommands(shell),
+		submodules.AddCommands(shell),
+		storage.AddCommands(shell),
+	}
+
+	for _, commandName := range commands {
+		if len(os.Args) > 1 && os.Args[1] == commandName {
+			os.Args = os.Args[2:]
+		}
+	}
 	//-------------------------------------------
-	shell.NotFound(func(arg1 *ishell.Context) {
-		sh.ShellCommand(strings.Join(arg1.Args, " "), "", false)
-	})
 
 	if len(os.Args) > 1 && os.Args[1] == "unattended" {
 		shell.Process(os.Args[2:]...)
