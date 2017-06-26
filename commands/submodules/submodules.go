@@ -5,27 +5,35 @@ import (
 	"os"
 	"strings"
 
+	"github.com/AlexsJones/cli/cli"
+	"github.com/AlexsJones/cli/command"
 	sh "github.com/AlexsJones/kepler/commands/shell"
-	"github.com/abiosoft/ishell"
 	"github.com/fatih/color"
 	"gopkg.in/src-d/go-git.v4"
 )
 
-//AddCommands to this module
-func AddCommands(shell *ishell.Shell) string {
-	shell.AddCmd(&ishell.Cmd{
-		Name: "submodules-exec",
-		Help: "Exec command in submodules <cmd> e.g. exec git reset --hard HEAD",
-		Func: func(c *ishell.Context) {
-			if len(c.Args) < 1 {
-				fmt.Println("Please provide a command")
-				return
-			}
-			CommandSubmodules(strings.Join(c.Args, " "))
+//AddCommands for this module
+func AddCommands(cli *cli.Cli) {
+
+	cli.AddCommand(command.Command{
+		Name: "submodule",
+		Help: "submodule command palette",
+		SubCommands: []command.Command{
+			command.Command{
+				Name: "exec",
+				Help: "execute in all submodules",
+				Func: func(args []string) {
+					if len(args) < 1 {
+						fmt.Println("Please provide a command")
+						return
+					}
+					CommandSubmodules(strings.Join(args, " "))
+				},
+			},
 		},
 	})
-	return "submodules"
 }
+
 func loopSubmodules(path string, callback func(sub *git.Submodule) error) error {
 
 	r, err := git.PlainOpen(path)

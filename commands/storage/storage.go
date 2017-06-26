@@ -6,22 +6,29 @@ import (
 	"os"
 	p "path"
 
-	"github.com/abiosoft/ishell"
+	"github.com/AlexsJones/cli/cli"
+	"github.com/AlexsJones/cli/command"
 	"github.com/fatih/color"
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-//AddCommands to this module
-func AddCommands(shell *ishell.Shell) string {
-	shell.AddCmd(&ishell.Cmd{
-		Name: "storage-purge",
-		Help: "Purge all kepler storage",
-		Func: func(c *ishell.Context) {
-			Delete()
-			color.Blue("Deleted local storage")
+//AddCommands for this module
+func AddCommands(cli *cli.Cli) {
+
+	cli.AddCommand(command.Command{
+		Name: "storage",
+		Help: "shell command palette",
+		SubCommands: []command.Command{
+			command.Command{
+				Name: "clear",
+				Help: "clear all data from kepler",
+				Func: func(args []string) {
+					Delete()
+					color.Blue("Deleted local storage")
+				},
+			},
 		},
 	})
-	return "storage"
 }
 
 var store = ".kepler"

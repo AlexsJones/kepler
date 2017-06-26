@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"os"
 
+	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/kepler/commands/github"
 	"github.com/AlexsJones/kepler/commands/node"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kepler/commands/submodules"
-	"github.com/abiosoft/ishell"
 	"github.com/dimiro1/banner"
 )
 
@@ -27,25 +27,16 @@ const b string = `
 func main() {
 	banner.Init(os.Stdout, true, true, bytes.NewBufferString(b))
 
-	shell := ishell.New()
-	shell.SetPrompt("[kepler]>>>")
-	shell.SetHomeHistoryPath(".ishell_history")
+	cli := cli.NewCli()
 
 	//Modules to add ----------------------------
 
-	_ = []string{
-		node.AddCommands(shell),
-		github.AddCommands(shell),
-		submodules.AddCommands(shell),
-		storage.AddCommands(shell),
-	}
+	node.AddCommands(cli)
+	github.AddCommands(cli)
+	submodules.AddCommands(cli)
+	storage.AddCommands(cli)
 
 	//-------------------------------------------
 
-	if len(os.Args) > 1 && os.Args[1] == "unattended" {
-		shell.Process(os.Args[2:]...)
-	} else {
-		shell.Start()
-		shell.Wait()
-	}
+	cli.Run()
 }
