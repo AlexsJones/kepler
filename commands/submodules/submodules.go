@@ -12,9 +12,9 @@ import (
 )
 
 //AddCommands to this module
-func AddCommands(shell *ishell.Shell) {
+func AddCommands(shell *ishell.Shell) string {
 	shell.AddCmd(&ishell.Cmd{
-		Name: "exec",
+		Name: "submodules-exec",
 		Help: "Exec command in submodules <cmd> e.g. exec git reset --hard HEAD",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) < 1 {
@@ -24,6 +24,7 @@ func AddCommands(shell *ishell.Shell) {
 			CommandSubmodules(strings.Join(c.Args, " "))
 		},
 	})
+	return "submodules"
 }
 func loopSubmodules(path string, callback func(sub *git.Submodule) error) error {
 

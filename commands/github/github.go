@@ -13,16 +13,16 @@ import (
 )
 
 var githubClient *github.Client
+var localStorage *storage.Storage
 
 //AddCommands for this module
-func AddCommands(shell *ishell.Shell) {
+func AddCommands(shell *ishell.Shell) string {
 
 	shell.AddCmd(&ishell.Cmd{
-		Name: "login",
+		Name: "github-login",
 		Help: "Login to github",
 		Func: func(c *ishell.Context) {
 
-			var localStorage *storage.Storage
 			b, err := storage.Exists()
 			if err != nil {
 				fmt.Println(err.Error())
@@ -61,4 +61,40 @@ func AddCommands(shell *ishell.Shell) {
 			color.Green("Authentication Successful.")
 		},
 	})
+
+	return "github"
+}
+
+//UnsetIssue from storage
+func UnsetIssue() {
+	var err error
+	if localStorage == nil {
+		localStorage, err = storage.Load()
+		if err != nil {
+			return
+		}
+
+	}
+	localStorage.Github.IssueNumber = ""
+	localStorage.Github.IssueRepo = ""
+	storage.Save(localStorage)
+}
+
+//SetIssue in storage
+func SetIssue(repo string, id string, store *storage.Storage) {
+	var err error
+	if localStorage == nil {
+		localStorage, err = storage.Load()
+		if err != nil {
+			return
+		}
+	}
+	store.Github.IssueNumber = id
+	store.Github.IssueRepo = repo
+	storage.Save(localStorage)
+}
+
+//AttachPRToIssue ...
+func AttachPRToIssue() {
+	//githubClient.PullRequests.CreateComment(ctx, owner, repo, number, i.GetURL())
 }
