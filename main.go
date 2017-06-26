@@ -33,18 +33,13 @@ func main() {
 
 	//Modules to add ----------------------------
 
-	commands := []string{
+	_ = []string{
 		node.AddCommands(shell),
 		github.AddCommands(shell),
 		submodules.AddCommands(shell),
 		storage.AddCommands(shell),
 	}
 
-	for _, commandName := range commands {
-		if len(os.Args) > 1 && os.Args[1] == commandName {
-			os.Args = os.Args[2:]
-		}
-	}
 	//-------------------------------------------
 
 	if len(os.Args) > 1 && os.Args[1] == "unattended" {
