@@ -18,6 +18,9 @@ func AddCommands(cli *cli.Cli) {
 	cli.AddCommand(command.Command{
 		Name: "storage",
 		Help: "shell command palette",
+		Func: func(args []string) {
+
+		},
 		SubCommands: []command.Command{
 			command.Command{
 				Name: "clear",
@@ -41,8 +44,7 @@ type Storage struct {
 //Github specific sub structure
 type Github struct {
 	AccessToken string `json:"accesstoken"`
-	IssueNumber string `json:"issuenumber"`
-	IssueRepo   string `json:"issuerepo"`
+	IssueURL    string `json:"issueurl"`
 }
 
 //NewStorage object

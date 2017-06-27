@@ -22,6 +22,8 @@ func AddCommands(cli *cli.Cli) {
 	cli.AddCommand(command.Command{
 		Name: "npm",
 		Help: "npm command palette",
+		Func: func(args []string) {
+		},
 		SubCommands: []command.Command{
 			command.Command{
 				Name: "file",

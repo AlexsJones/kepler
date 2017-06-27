@@ -18,6 +18,9 @@ func AddCommands(cli *cli.Cli) {
 	cli.AddCommand(command.Command{
 		Name: "submodule",
 		Help: "submodule command palette",
+		Func: func(args []string) {
+
+		},
 		SubCommands: []command.Command{
 			command.Command{
 				Name: "exec",

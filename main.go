@@ -20,7 +20,6 @@ const b string = `
 {{ .AnsiColor.Default }}
 {{ .AnsiColor.Default }} Kepler is a simple program for managing submodules + npm packages
 {{ .AnsiColor.Default }} Type 'help' for commands!
-{{ .AnsiColor.Default }} Normal shell commands can be used here too e.g. pwd
 {{ .AnsiColor.Default }}
 `
 
@@ -37,6 +36,5 @@ func main() {
 	storage.AddCommands(cli)
 
 	//-------------------------------------------
-
 	cli.Run()
 }
