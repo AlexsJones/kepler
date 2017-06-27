@@ -8,14 +8,21 @@ _  _  ____  ____  __    ____  ____
 Designed to do a few things well...
 
 ```
-Commands:
-  clear       clear the screen
-  delete      Delete selected packages that match the <input string> e.g. Google.git
-  exec        Exec command in submodules <cmd> e.g. exec git reset --hard HEAD
-  exit        exit the program
-  file        Switch selected packages to use local links e.g. fix mycompany@git
-  help        display help
-  usage       Find usage in submodules of a certain package e.g. usage mocha
+npm sub commands:
+	[npm] file: relink an npm package locally
+	[npm] remove: remove a file from package.json
+	[npm] usage: find usage of a package within submodules
+github sub commands:
+	[github] issue: Issue command palette
+		[issue] set: set the current working issue <reponame> <issuenumber>
+		[issue] unset: unset the current working issue
+		[issue] pr: update a pr with issue information
+	[github] login: use an access token to login to github
+submodule sub commands:
+	[submodule] exec: execute in all submodules
+storage sub commands:
+	[storage] clear: clear all data from kepler
+
 ```
 ## Installation
 
