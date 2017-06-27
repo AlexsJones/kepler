@@ -4,14 +4,12 @@
 	"GodepVersion": "v79",
 	"Deps": [
 		{
-			"ImportPath": "github.com/abiosoft/ishell",
-			"Comment": "v1-67-g3b896da",
-			"Rev": "3b896da4433c0ea49967bc7b577e0a359bd821ce"
+			"ImportPath": "github.com/AlexsJones/cli/cli",
+			"Rev": "6c573762cb278d00a87e0ec06f46d2929fb1fe40"
 		},
 		{
-			"ImportPath": "github.com/chzyer/readline",
-			"Comment": "v1.4-24-g41eea22",
-			"Rev": "41eea22f717c616615e1e59aa06cf831f9901f35"
+			"ImportPath": "github.com/AlexsJones/cli/command",
+			"Rev": "6c573762cb278d00a87e0ec06f46d2929fb1fe40"
 		},
 		{
 			"ImportPath": "github.com/dimiro1/banner",
@@ -23,8 +21,12 @@
 			"Rev": "62e9147c64a1ed519147b62a56a14e83e2be02c1"
 		},
 		{
-			"ImportPath": "github.com/flynn-archive/go-shlex",
-			"Rev": "3f9db97f856818214da2e1057f8ad84803971cff"
+			"ImportPath": "github.com/google/go-github/github",
+			"Rev": "7a51fb928f52a196d5f31daefb8a489453ef54ff"
+		},
+		{
+			"ImportPath": "github.com/google/go-querystring/query",
+			"Rev": "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 		},
 		{
 			"ImportPath": "github.com/mattn/go-colorable",
@@ -35,6 +37,10 @@
 			"ImportPath": "github.com/mattn/go-isatty",
 			"Comment": "v0.0.2",
 			"Rev": "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/go-homedir",
+			"Rev": "b8bc1bf767474819792c23f32d8286a45736f1c6"
 		},
 		{
 			"ImportPath": "github.com/sergi/go-diff/diffmatchpatch",
@@ -85,8 +91,20 @@
 			"Rev": "adbae1b6b6fb4b02448a0fc0dbbc9ba2b95b294d"
 		},
 		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "057a25b06247e0c51ba15d8ae475feb2fcb72164"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "f047394b6d14284165300fd82dad67edb3a4d7f6"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2/internal",
+			"Rev": "f047394b6d14284165300fd82dad67edb3a4d7f6"
+		},
+		{
 			"ImportPath": "golang.org/x/sys/unix",
-			"Rev": "fb4cac33e3196ff7f507ab9b2d2a44b0142f5b5a"
+			"Rev": "c23410a886927bab8ca5e80b08af6a56faeb330d"
 		},
 		{
 			"ImportPath": "gopkg.in/src-d/go-billy.v2",
