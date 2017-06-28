@@ -206,7 +206,7 @@ func CreateIssue(owner string, repo string, title string) error {
 	}
 	fmt.Printf("Github says %d\n", resp.StatusCode)
 	fmt.Printf("%s\n", issue.GetURL())
-	localStorage.Github.Issue.IssueURL = issue.GetURL()
+	localStorage.Github.Issue.IssueURL = issue.GetHTMLURL()
 	storage.Save(localStorage)
 	return nil
 }
