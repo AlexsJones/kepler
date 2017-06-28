@@ -27,9 +27,33 @@ func AddCommands(cli *cli.Cli) {
 		Name: "github",
 		Help: "github command palette",
 		Func: func(args []string) {
-
+			fmt.Println("See help for working with github")
 		},
 		SubCommands: []command.Command{
+			command.Command{
+				Name: "pr",
+				Help: "pr command palette",
+				Func: func(args []string) {
+					fmt.Println("See help for working with pr")
+				},
+				SubCommands: []command.Command{
+					command.Command{
+						Name: "attach",
+						Help: "attach the current issue to a pr <reponame> <owner> <prnumber>",
+						Func: func(args []string) {
+							if githubClient == nil || localStorage == nil {
+								fmt.Println("Please login first...")
+								return
+							}
+							if len(args) == 0 || len(args) < 3 {
+								fmt.Println("set the current working issue in the pr <reponame> <owner> <prnumber>")
+								return
+							}
+							AttachIssuetoPr(args[0], args[1], args[2])
+						},
+					},
+				},
+			},
 			command.Command{
 				Name: "issue",
 				Help: "Issue command palette",
@@ -62,21 +86,6 @@ func AddCommands(cli *cli.Cli) {
 								return
 							}
 							UnsetIssue()
-						},
-					},
-					command.Command{
-						Name: "pr",
-						Help: "update a pr with issue information <reponame> <ownername> <number>",
-						Func: func(args []string) {
-							if githubClient == nil || localStorage == nil {
-								fmt.Println("Please login first...")
-								return
-							}
-							if len(args) == 0 || len(args) < 3 {
-								fmt.Println("set the current working issue in the pr <reponame> <owner> <issuenumber>")
-								return
-							}
-							AttachIssuetoPr(args[0], args[1], args[2])
 						},
 					},
 				},

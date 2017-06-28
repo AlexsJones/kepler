@@ -19,15 +19,15 @@ func AddCommands(cli *cli.Cli) {
 		Name: "submodule",
 		Help: "submodule command palette",
 		Func: func(args []string) {
-
+			fmt.Println("See help for working with submodules")
 		},
 		SubCommands: []command.Command{
 			command.Command{
 				Name: "exec",
-				Help: "execute in all submodules",
+				Help: "execute in all submodules <command string>",
 				Func: func(args []string) {
 					if len(args) < 1 {
-						fmt.Println("Please provide a command")
+						fmt.Println("Please provide a command <command string>")
 						return
 					}
 					CommandSubmodules(strings.Join(args, " "))

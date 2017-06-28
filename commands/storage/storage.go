@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	p "path"
@@ -19,7 +20,7 @@ func AddCommands(cli *cli.Cli) {
 		Name: "storage",
 		Help: "shell command palette",
 		Func: func(args []string) {
-
+			fmt.Println("See help for working with shell")
 		},
 		SubCommands: []command.Command{
 			command.Command{
