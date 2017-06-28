@@ -23,9 +23,10 @@ submodule sub commands:
 storage sub commands:
 	[storage] clear: clear all data from kepler
 
+```
 [![asciicast](https://asciinema.org/a/uccLCSINhgn48JBMFMEDNLCZg.png)](https://asciinema.org/a/uccLCSINhgn48JBMFMEDNLCZg)
 
-```
+
 ## Installation
 
 Either:
