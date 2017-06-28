@@ -45,7 +45,22 @@ type Storage struct {
 //Github specific sub structure
 type Github struct {
 	AccessToken string `json:"accesstoken"`
-	IssueURL    string `json:"issueurl"`
+	Issue       *Issue `json:"issue"`
+}
+
+//Issue ...
+type Issue struct {
+	IssueURL     string        `json:"issueurl"`
+	PullRequests []PullRequest `json:"pullrequests"`
+}
+
+//PullRequest ...
+type PullRequest struct {
+	Repo  string
+	Owner string
+	Base  string
+	Head  string
+	Title string
 }
 
 //NewStorage object
@@ -53,6 +68,7 @@ func NewStorage() *Storage {
 
 	s := &Storage{}
 	s.Github = &Github{}
+	s.Github.Issue = &Issue{}
 	return s
 }
 
