@@ -1,5 +1,7 @@
 package main
+//Some change 
 
+//Another
 import (
 	"bytes"
 	"os"
@@ -18,7 +20,6 @@ const b string = `
 {{ .AnsiColor.Green }} )  (  )__)  )___/ )(__  )__)  )   /
 {{ .AnsiColor.Green }}(_)\_)(____)(__)  (____)(____)(_)\_)
 {{ .AnsiColor.Default }}
-{{ .AnsiColor.Default }} Kepler is a simple program for managing submodules + npm packages
 {{ .AnsiColor.Default }} Type 'help' for commands!
 {{ .AnsiColor.Default }}
 `
