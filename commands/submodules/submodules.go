@@ -23,6 +23,16 @@ func AddCommands(cli *cli.Cli) {
 		},
 		SubCommands: []command.Command{
 			command.Command{
+				Name: "branch",
+				Help: "branch command palette",
+				Func: func(args []string) {
+					if len(args) < 1 {
+						fmt.Println("See help for working with branch")
+						return
+					}
+				},
+			},
+			command.Command{
 				Name: "exec",
 				Help: "execute in all submodules <command string>",
 				Func: func(args []string) {

@@ -52,6 +52,21 @@ func AddCommands(cli *cli.Cli) {
 							AttachIssuetoPr(args[0], args[1], args[2])
 						},
 					},
+					command.Command{
+						Name: "create",
+						Help: "create a pr <reponame> <owner> <title> <base> <head>",
+						Func: func(args []string) {
+							if githubClient == nil || localStorage == nil {
+								fmt.Println("Please login first...")
+								return
+							}
+							if len(args) == 0 || len(args) < 5 {
+								fmt.Println("create a pr <reponame> <owner> <title> <base> <head>")
+								return
+							}
+							CreatePR(args[0], args[1], args[2], args[3], args[4])
+						},
+					},
 				},
 			},
 			command.Command{
@@ -61,6 +76,25 @@ func AddCommands(cli *cli.Cli) {
 					fmt.Println("See help for working with issue")
 				},
 				SubCommands: []command.Command{
+					command.Command{
+						Name: "create",
+						Help: "set the current working issue <repo> <owner> <issuename>",
+						Func: func(args []string) {
+							if len(args) == 0 || len(args) < 3 {
+								fmt.Println("Requires <repo> <owner> <issuename>")
+								return
+							}
+							if githubClient == nil || localStorage == nil {
+								fmt.Println("Please login first...")
+								return
+							}
+							if err := CreateIssue(args[0], args[1], args[2]); err != nil {
+								color.Red(err.Error())
+							} else {
+								color.Green("Okay")
+							}
+						},
+					},
 					command.Command{
 						Name: "set",
 						Help: "set the current working issue <issue url>",
@@ -86,6 +120,13 @@ func AddCommands(cli *cli.Cli) {
 								return
 							}
 							UnsetIssue()
+						},
+					},
+					command.Command{
+						Name: "show",
+						Help: "show the current working issue",
+						Func: func(args []string) {
+							ShowIssue()
 						},
 					},
 				},
@@ -135,35 +176,96 @@ func AddCommands(cli *cli.Cli) {
 	})
 }
 
-//UnsetIssue from storage
-func UnsetIssue() {
+//CreateIssue ...
+func CreateIssue(repo string, owner string, title string) error {
 	var err error
 	if localStorage == nil {
 		localStorage, err = storage.Load()
 		if err != nil {
-			return
+			return err
+		}
+	}
+	githubClient.Issues.List(ctx, true, &github.IssueListOptions{})
+
+	request := &github.IssueRequest{
+		Title: &title,
+	}
+	issue, resp, err := githubClient.Issues.Create(ctx, owner, repo, request)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Github says %d\n", resp.StatusCode)
+
+	localStorage.Github.IssueURL = issue.GetURL()
+	storage.Save(localStorage)
+	return nil
+}
+
+//ShowIssue displays current working issue
+func ShowIssue() error {
+	var err error
+	if localStorage == nil {
+		localStorage, err = storage.Load()
+		if err != nil {
+			return err
+		}
+	}
+	if localStorage.Github.IssueURL != "" {
+		fmt.Printf("Working issue at %s\n", localStorage.Github.IssueURL)
+	} else {
+		color.Red("No working issue set")
+	}
+	return nil
+}
+
+//UnsetIssue from storage
+func UnsetIssue() error {
+	var err error
+	if localStorage == nil {
+		localStorage, err = storage.Load()
+		if err != nil {
+			return err
 		}
 
 	}
 	localStorage.Github.IssueURL = ""
-	storage.Save(localStorage)
+	return storage.Save(localStorage)
 }
 
 //SetIssue in storage
-func SetIssue(issueurl string) {
+func SetIssue(issueurl string) error {
 	var err error
 	if localStorage == nil {
 		localStorage, err = storage.Load()
 		if err != nil {
-			return
+			return err
 		}
 	}
 	localStorage.Github.IssueURL = issueurl
-	storage.Save(localStorage)
+	return storage.Save(localStorage)
+}
+
+//CreatePR makes a new pull request
+func CreatePR(owner string, repo string, title string, base string, head string) error {
+
+	pull := github.NewPullRequest{
+		Base:  &base,
+		Head:  &head,
+		Title: &title,
+	}
+
+	_, resp, err := githubClient.PullRequests.Create(ctx, owner, repo, &pull)
+	if err != nil {
+		color.Red(err.Error())
+		return err
+	}
+	fmt.Printf("Github says %d\n", resp.StatusCode)
+
+	return nil
 }
 
 //AttachIssuetoPr ...
-func AttachIssuetoPr(reponame string, owner string, number string) {
+func AttachIssuetoPr(reponame string, owner string, number string) error {
 
 	if localStorage == nil {
 		localStorage, _ = storage.Load()
@@ -171,17 +273,19 @@ func AttachIssuetoPr(reponame string, owner string, number string) {
 
 	if localStorage.Github.IssueURL == "" {
 		color.Red("No working issue set...")
-		return
+		return nil
 	}
 
 	num, err := strconv.Atoi(number)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 
 	pr, res, err := githubClient.PullRequests.Get(ctx, owner, reponame, num)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	fmt.Printf("Github says %d\n", res.StatusCode)
 
@@ -190,6 +294,8 @@ func AttachIssuetoPr(reponame string, owner string, number string) {
 	pr, res, err = githubClient.PullRequests.Edit(ctx, owner, reponame, num, &github.PullRequest{Body: &appended})
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	color.Green("Okay")
+	return nil
 }
