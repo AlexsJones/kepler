@@ -142,6 +142,7 @@ func Load() (*Storage, error) {
 	return &s, nil
 }
 
+//ShowStorage in kepler
 func ShowStorage() error {
 	pout, err := path()
 	if err != nil {
