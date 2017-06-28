@@ -28,7 +28,14 @@ func AddCommands(cli *cli.Cli) {
 				Help: "clear all data from kepler",
 				Func: func(args []string) {
 					Delete()
-					color.Blue("Deleted local storage")
+					color.Green("Deleted local storage")
+				},
+			},
+			command.Command{
+				Name: "show",
+				Help: "show storage data",
+				Func: func(args []string) {
+					ShowStorage()
 				},
 			},
 		},
@@ -133,4 +140,17 @@ func Load() (*Storage, error) {
 	json.Unmarshal(b, &s)
 
 	return &s, nil
+}
+
+func ShowStorage() error {
+	pout, err := path()
+	if err != nil {
+		return err
+	}
+	b, err := ioutil.ReadFile(pout)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(b))
+	return nil
 }
