@@ -23,11 +23,12 @@ func AddCommands(cli *cli.Cli) {
 		Name: "npm",
 		Help: "npm command palette",
 		Func: func(args []string) {
+			fmt.Println("See help for working with npm")
 		},
 		SubCommands: []command.Command{
 			command.Command{
 				Name: "file",
-				Help: "relink an npm package locally",
+				Help: "relink an npm package locally<prefix> <string>",
 				Func: func(args []string) {
 					if len(args) < 2 {
 						fmt.Println("Please give a target package string to try to convert to a file link <prefix> <string> e.g. file ../../ googleremotes.git")
@@ -44,10 +45,10 @@ func AddCommands(cli *cli.Cli) {
 			},
 			command.Command{
 				Name: "remove",
-				Help: "remove a file from package.json",
+				Help: "remove a dep from package.json <string>",
 				Func: func(args []string) {
 					if len(args) < 1 {
-						fmt.Println("Please give a target package string to to remove")
+						fmt.Println("Please give a target package string to to remove <string>")
 						return
 					}
 					submodules.LoopSubmodules(func(sub *git.Submodule) {
@@ -60,10 +61,10 @@ func AddCommands(cli *cli.Cli) {
 			},
 			command.Command{
 				Name: "usage",
-				Help: "find usage of a package within submodules",
+				Help: "find usage of a package within submodules <string>",
 				Func: func(args []string) {
 					if len(args) < 1 {
-						fmt.Println("Find a package usage in submodule package.json e.g. usage mocha")
+						fmt.Println("Find a package usage in submodule package.json <string> e.g. usage mocha")
 						return
 					}
 					submodules.LoopSubmodules(func(sub *git.Submodule) {

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	p "path"
@@ -19,7 +20,7 @@ func AddCommands(cli *cli.Cli) {
 		Name: "storage",
 		Help: "shell command palette",
 		Func: func(args []string) {
-
+			fmt.Println("See help for working with shell")
 		},
 		SubCommands: []command.Command{
 			command.Command{
@@ -27,7 +28,14 @@ func AddCommands(cli *cli.Cli) {
 				Help: "clear all data from kepler",
 				Func: func(args []string) {
 					Delete()
-					color.Blue("Deleted local storage")
+					color.Green("Deleted local storage")
+				},
+			},
+			command.Command{
+				Name: "show",
+				Help: "show storage data",
+				Func: func(args []string) {
+					ShowStorage()
 				},
 			},
 		},
@@ -44,7 +52,22 @@ type Storage struct {
 //Github specific sub structure
 type Github struct {
 	AccessToken string `json:"accesstoken"`
-	IssueURL    string `json:"issueurl"`
+	Issue       *Issue `json:"issue"`
+}
+
+//Issue ...
+type Issue struct {
+	IssueURL     string        `json:"issueurl"`
+	PullRequests []PullRequest `json:"pullrequests"`
+}
+
+//PullRequest ...
+type PullRequest struct {
+	Repo  string
+	Owner string
+	Base  string
+	Head  string
+	Title string
 }
 
 //NewStorage object
@@ -52,6 +75,7 @@ func NewStorage() *Storage {
 
 	s := &Storage{}
 	s.Github = &Github{}
+	s.Github.Issue = &Issue{}
 	return s
 }
 
@@ -116,4 +140,17 @@ func Load() (*Storage, error) {
 	json.Unmarshal(b, &s)
 
 	return &s, nil
+}
+
+func ShowStorage() error {
+	pout, err := path()
+	if err != nil {
+		return err
+	}
+	b, err := ioutil.ReadFile(pout)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(b))
+	return nil
 }
