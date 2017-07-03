@@ -6,6 +6,10 @@ _  _  ____  ____  __    ____  ____
 ```
 
 Designed to do a few things well...
+- Work with multiple submodules
+- Let you create PR's and thread them together between repos.
+- Execute batch commands in module.
+- Access github API.
 
 ```
 npm sub commands:
