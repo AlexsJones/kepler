@@ -55,17 +55,23 @@ func AddCommands(cli *cli.Cli) {
 					},
 					command.Command{
 						Name: "create",
-						Help: "create a pr <owner> <repo> <title> <base> <head>",
+						Help: "create a pr <owner> <repo> <base> <head> <title>",
 						Func: func(args []string) {
 							if githubClient == nil || localStorage == nil {
 								fmt.Println("Please login first...")
 								return
 							}
 							if len(args) == 0 || len(args) < 5 {
-								fmt.Println("create a pr <owner> <repo> <title> <base> <head>")
+								fmt.Println("create a pr <owner> <repo> <base> <head> <title> ")
 								return
 							}
-							if err := CreatePR(args[0], args[1], args[2], args[3], args[4]); err != nil {
+
+							var conc []string
+							for _, str := range args[4:] {
+								conc = append(conc, str)
+							}
+
+							if err := CreatePR(args[0], args[1], args[2], args[3], strings.Join(conc, " ")); err != nil {
 								color.Red(err.Error())
 								return
 							}
@@ -93,7 +99,13 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("Please login first...")
 								return
 							}
-							if err := CreateIssue(args[0], args[1], args[2]); err != nil {
+
+							var conc []string
+							for _, str := range args[2:] {
+								conc = append(conc, str)
+							}
+
+							if err := CreateIssue(args[0], args[1], strings.Join(conc, " ")); err != nil {
 								color.Red(err.Error())
 							} else {
 								color.Green("Okay")
@@ -205,7 +217,7 @@ func CreateIssue(owner string, repo string, title string) error {
 		return err
 	}
 	fmt.Printf("Github says %d\n", resp.StatusCode)
-	fmt.Printf("%s\n", issue.GetURL())
+	fmt.Printf("%s\n", issue.GetHTMLURL())
 	localStorage.Github.Issue.IssueURL = issue.GetHTMLURL()
 	storage.Save(localStorage)
 	return nil
@@ -256,7 +268,7 @@ func SetIssue(issueurl string) error {
 }
 
 //CreatePR makes a new pull request
-func CreatePR(owner string, repo string, title string, base string, head string) error {
+func CreatePR(owner string, repo string, base string, head string, title string) error {
 
 	fmt.Printf("Owner: %s\n", owner)
 	fmt.Printf("Repo: %s\n", repo)
@@ -285,7 +297,7 @@ func CreatePR(owner string, repo string, title string, base string, head string)
 		return err
 	}
 	fmt.Printf("Github says %d\n", resp.StatusCode)
-	fmt.Printf("%s\n", p.GetURL())
+	fmt.Printf("%s\n", p.GetHTMLURL())
 	storedPr := storage.PullRequest{
 		Owner: owner,
 		Repo:  repo,
