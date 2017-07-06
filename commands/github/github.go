@@ -234,6 +234,14 @@ func ShowIssue() error {
 	}
 	if localStorage.Github.Issue.IssueURL != "" {
 		fmt.Printf("Working issue at %s\n", localStorage.Github.Issue.IssueURL)
+
+		if len(localStorage.Github.Issue.PullRequests) > 0 {
+			fmt.Printf("\n")
+			for _, pr := range localStorage.Github.Issue.PullRequests {
+				fmt.Printf("- %s/%s base: %s head %s %s\n", pr.Owner, pr.Repo, pr.Base, pr.Head, pr.Title)
+			}
+		}
+
 	} else {
 		color.Red("No working issue set")
 	}
