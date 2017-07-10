@@ -146,6 +146,10 @@ func AddCommands(cli *cli.Cli) {
 						Name: "show",
 						Help: "show the current working issue",
 						Func: func(args []string) {
+							if githubClient == nil || localStorage == nil {
+								fmt.Println("Please login first...")
+								return
+							}
 							ShowIssue()
 						},
 					},
@@ -218,7 +222,11 @@ func CreateIssue(owner string, repo string, title string) error {
 	}
 	fmt.Printf("Github says %d\n", resp.StatusCode)
 	fmt.Printf("%s\n", issue.GetHTMLURL())
+	fmt.Printf("Issue status is %s\n", issue.GetState())
 	localStorage.Github.Issue.IssueURL = issue.GetHTMLURL()
+	localStorage.Github.Issue.Owner = owner
+	localStorage.Github.Issue.Repo = repo
+	localStorage.Github.Issue.Number = issue.GetNumber()
 	storage.Save(localStorage)
 	return nil
 }
@@ -233,12 +241,25 @@ func ShowIssue() error {
 		}
 	}
 	if localStorage.Github.Issue.IssueURL != "" {
-		fmt.Printf("Working issue at %s\n", localStorage.Github.Issue.IssueURL)
+		issue, _, err := githubClient.Issues.Get(ctx, localStorage.Github.Issue.Owner, localStorage.Github.Issue.Repo, localStorage.Github.Issue.Number)
+
+		if err != nil {
+			color.Red(err.Error())
+			return err
+		}
+		fmt.Printf("Working issue at %s with status %s\n", localStorage.Github.Issue.IssueURL, issue.GetState())
 
 		if len(localStorage.Github.Issue.PullRequests) > 0 {
 			fmt.Printf("\n")
 			for _, pr := range localStorage.Github.Issue.PullRequests {
-				fmt.Printf("- %s/%s base: %s head %s %s\n", pr.Owner, pr.Repo, pr.Base, pr.Head, pr.Title)
+
+				p, _, err := githubClient.PullRequests.Get(ctx, pr.Owner, pr.Repo, pr.Number)
+				if err != nil {
+					color.Red(err.Error())
+					return err
+				}
+				fmt.Printf("[STATUS:%s]%s/%s  %s base: %s head %s %s\n", p.GetState(), pr.Owner, pr.Repo, p.GetHTMLURL(), pr.Base, pr.Head, pr.Title)
+
 			}
 		}
 
@@ -283,7 +304,6 @@ func CreatePR(owner string, repo string, base string, head string, title string)
 	fmt.Printf("Title: %s\n", title)
 	fmt.Printf("Base: %s\n", base)
 	fmt.Printf("Head: %s\n", head)
-
 	var prbody string
 	if localStorage.Github.Issue.IssueURL != "" {
 		fmt.Println("Attach to the current working issue? [Y/N]")
@@ -291,6 +311,7 @@ func CreatePR(owner string, repo string, base string, head string, title string)
 		response, _ := reader.ReadString('\n')
 		if strings.Contains(response, "Y") {
 			prbody = localStorage.Github.Issue.IssueURL
+			fmt.Printf("Body: %s\n", localStorage.Github.Issue.IssueURL)
 		}
 	}
 	pull := github.NewPullRequest{
@@ -306,12 +327,14 @@ func CreatePR(owner string, repo string, base string, head string, title string)
 	}
 	fmt.Printf("Github says %d\n", resp.StatusCode)
 	fmt.Printf("%s\n", p.GetHTMLURL())
+	fmt.Printf("PR status is %s\n", p.GetState())
 	storedPr := storage.PullRequest{
-		Owner: owner,
-		Repo:  repo,
-		Base:  base,
-		Head:  head,
-		Title: title,
+		Owner:  owner,
+		Repo:   repo,
+		Base:   base,
+		Head:   head,
+		Title:  title,
+		Number: p.GetNumber(),
 	}
 	localStorage.Github.Issue.PullRequests = append(localStorage.Github.Issue.PullRequests, storedPr)
 	storage.Save(localStorage)

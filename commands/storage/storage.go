@@ -58,16 +58,20 @@ type Github struct {
 //Issue ...
 type Issue struct {
 	IssueURL     string        `json:"issueurl"`
+	Owner        string        `json:"owner"`
+	Repo         string        `json:"repo"`
+	Number       int           `json:"number"`
 	PullRequests []PullRequest `json:"pullrequests"`
 }
 
 //PullRequest ...
 type PullRequest struct {
-	Repo  string
-	Owner string
-	Base  string
-	Head  string
-	Title string
+	Repo   string
+	Owner  string
+	Base   string
+	Head   string
+	Title  string
+	Number int
 }
 
 //NewStorage object
