@@ -145,7 +145,11 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("Please login first...")
 								return
 							}
-							UnsetIssue()
+							if err := UnsetIssue(); err != nil {
+								color.Red(err.Error())
+								return
+							}
+							color.Green("Okay")
 						},
 					},
 					command.Command{
@@ -333,7 +337,7 @@ func CreatePR(owner string, repo string, base string, head string, title string)
 	fmt.Printf("Head: %s\n", head)
 	var prbody string
 	if localStorage.Github.CurrentIssue.IssueURL != "" {
-		fmt.Println("Attach to the current working issue? [Y/N]")
+		fmt.Printf("Attach to the current working issue? (Issue: %s) [Y/N]\n", localStorage.Github.CurrentIssue.IssueURL)
 		reader := bufio.NewReader(os.Stdin)
 		response, _ := reader.ReadString('\n')
 		if strings.Contains(response, "Y") {
