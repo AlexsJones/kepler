@@ -3,6 +3,7 @@ package github
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -114,17 +115,22 @@ func AddCommands(cli *cli.Cli) {
 					},
 					command.Command{
 						Name: "set",
-						Help: "set the current working issue <issue url>",
+						Help: "set the current working issue <issue number>",
 						Func: func(args []string) {
 							if len(args) == 0 || len(args) < 1 {
-								fmt.Println("Requires <issue url>")
+								fmt.Println("Requires <issue number>")
 								return
 							}
 							if githubClient == nil || localStorage == nil {
 								fmt.Println("Please login first...")
 								return
 							}
-							if err := SetIssue(args[0]); err != nil {
+							i, error := strconv.Atoi(args[0])
+							if error != nil {
+								color.Red(error.Error())
+								return
+							}
+							if err := SetIssue(i); err != nil {
 								color.Red(err.Error())
 								return
 							}
@@ -223,10 +229,14 @@ func CreateIssue(owner string, repo string, title string) error {
 	fmt.Printf("Github says %d\n", resp.StatusCode)
 	fmt.Printf("%s\n", issue.GetHTMLURL())
 	fmt.Printf("Issue status is %s\n", issue.GetState())
-	localStorage.Github.Issue.IssueURL = issue.GetHTMLURL()
-	localStorage.Github.Issue.Owner = owner
-	localStorage.Github.Issue.Repo = repo
-	localStorage.Github.Issue.Number = issue.GetNumber()
+
+	var stIssue storage.Issue
+	stIssue.IssueURL = issue.GetHTMLURL()
+	stIssue.Owner = owner
+	stIssue.Repo = repo
+	stIssue.Number = issue.GetNumber()
+
+	localStorage.Github.Issue = append(localStorage.Github.Issue, stIssue)
 	storage.Save(localStorage)
 	return nil
 }
@@ -240,29 +250,37 @@ func ShowIssue() error {
 			return err
 		}
 	}
-	if localStorage.Github.Issue.IssueURL != "" {
-		issue, _, err := githubClient.Issues.Get(ctx, localStorage.Github.Issue.Owner, localStorage.Github.Issue.Repo, localStorage.Github.Issue.Number)
+	if len(localStorage.Github.Issue) > 0 {
 
-		if err != nil {
-			color.Red(err.Error())
-			return err
-		}
-		fmt.Printf("Working issue at %s with status %s\n", localStorage.Github.Issue.IssueURL, issue.GetState())
+		for count, currentIssue := range localStorage.Github.Issue {
 
-		if len(localStorage.Github.Issue.PullRequests) > 0 {
-			fmt.Printf("\n")
-			for _, pr := range localStorage.Github.Issue.PullRequests {
+			issue, _, err := githubClient.Issues.Get(ctx, currentIssue.Owner, currentIssue.Repo, currentIssue.Number)
 
-				p, _, err := githubClient.PullRequests.Get(ctx, pr.Owner, pr.Repo, pr.Number)
-				if err != nil {
-					color.Red(err.Error())
-					return err
+			if err != nil {
+				color.Red(err.Error())
+				return err
+			}
+			if localStorage.Github.CurrentIssue != nil {
+				if localStorage.Github.CurrentIssue.IssueURL == currentIssue.IssueURL {
+					fmt.Printf("Current issue >>>> ")
 				}
-				fmt.Printf("[STATUS:%s]%s/%s  %s base: %s head %s %s\n", p.GetState(), pr.Owner, pr.Repo, p.GetHTMLURL(), pr.Base, pr.Head, pr.Title)
+			}
+			fmt.Printf("%d: issue at %s with status %s\n", count, currentIssue.IssueURL, issue.GetState())
 
+			if len(currentIssue.PullRequests) > 0 {
+				fmt.Printf("\n")
+				for _, pr := range currentIssue.PullRequests {
+
+					p, _, err := githubClient.PullRequests.Get(ctx, pr.Owner, pr.Repo, pr.Number)
+					if err != nil {
+						color.Red(err.Error())
+						return err
+					}
+					fmt.Printf("[STATUS:%s]%s/%s  %s base: %s head %s %s\n", p.GetState(), pr.Owner, pr.Repo, p.GetHTMLURL(), pr.Base, pr.Head, pr.Title)
+
+				}
 			}
 		}
-
 	} else {
 		color.Red("No working issue set")
 	}
@@ -279,12 +297,12 @@ func UnsetIssue() error {
 		}
 
 	}
-	localStorage.Github.Issue = &storage.Issue{PullRequests: []storage.PullRequest{}}
+	localStorage.Github.CurrentIssue = nil
 	return storage.Save(localStorage)
 }
 
 //SetIssue in storage
-func SetIssue(issueurl string) error {
+func SetIssue(issueNumber int) error {
 	var err error
 	if localStorage == nil {
 		localStorage, err = storage.Load()
@@ -292,7 +310,16 @@ func SetIssue(issueurl string) error {
 			return err
 		}
 	}
-	localStorage.Github.Issue.IssueURL = issueurl
+
+	if issueNumber > len(localStorage.Github.Issue) {
+		return errors.New("Out of bounds")
+	}
+
+	is := localStorage.Github.Issue[issueNumber]
+	if &is == nil {
+		return errors.New("No issue pointer")
+	}
+	localStorage.Github.CurrentIssue = &is
 	return storage.Save(localStorage)
 }
 
@@ -305,13 +332,13 @@ func CreatePR(owner string, repo string, base string, head string, title string)
 	fmt.Printf("Base: %s\n", base)
 	fmt.Printf("Head: %s\n", head)
 	var prbody string
-	if localStorage.Github.Issue.IssueURL != "" {
+	if localStorage.Github.CurrentIssue.IssueURL != "" {
 		fmt.Println("Attach to the current working issue? [Y/N]")
 		reader := bufio.NewReader(os.Stdin)
 		response, _ := reader.ReadString('\n')
 		if strings.Contains(response, "Y") {
-			prbody = localStorage.Github.Issue.IssueURL
-			fmt.Printf("Body: %s\n", localStorage.Github.Issue.IssueURL)
+			prbody = localStorage.Github.CurrentIssue.IssueURL
+			fmt.Printf("Body: %s\n", localStorage.Github.CurrentIssue.IssueURL)
 		}
 	}
 	pull := github.NewPullRequest{
@@ -336,7 +363,7 @@ func CreatePR(owner string, repo string, base string, head string, title string)
 		Title:  title,
 		Number: p.GetNumber(),
 	}
-	localStorage.Github.Issue.PullRequests = append(localStorage.Github.Issue.PullRequests, storedPr)
+	localStorage.Github.CurrentIssue.PullRequests = append(localStorage.Github.CurrentIssue.PullRequests, storedPr)
 	storage.Save(localStorage)
 	return nil
 }
@@ -351,7 +378,7 @@ func AttachIssuetoPr(owner string, reponame string, number string) error {
 	fmt.Printf("Repo: %s\n", reponame)
 	fmt.Printf("Title: %s\n", number)
 
-	if localStorage.Github.Issue.IssueURL == "" {
+	if localStorage.Github.CurrentIssue.IssueURL == "" {
 		color.Red("No working issue set...")
 		return nil
 	}
@@ -369,7 +396,7 @@ func AttachIssuetoPr(owner string, reponame string, number string) error {
 	}
 	fmt.Printf("Github says %d\n", res.StatusCode)
 
-	appended := fmt.Sprintf("%s\n%s\n", string(pr.GetBody()), localStorage.Github.Issue.IssueURL)
+	appended := fmt.Sprintf("%s\n%s\n", string(pr.GetBody()), localStorage.Github.CurrentIssue.IssueURL)
 
 	pr, res, err = githubClient.PullRequests.Edit(ctx, owner, reponame, num, &github.PullRequest{Body: &appended})
 	if err != nil {

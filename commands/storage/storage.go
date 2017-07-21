@@ -51,8 +51,9 @@ type Storage struct {
 
 //Github specific sub structure
 type Github struct {
-	AccessToken string `json:"accesstoken"`
-	Issue       *Issue `json:"issue"`
+	AccessToken  string  `json:"accesstoken"`
+	Issue        []Issue `json:"issue"`
+	CurrentIssue *Issue  `json:"currentissue"`
 }
 
 //Issue ...
@@ -79,7 +80,7 @@ func NewStorage() *Storage {
 
 	s := &Storage{}
 	s.Github = &Github{}
-	s.Github.Issue = &Issue{}
+
 	return s
 }
 
