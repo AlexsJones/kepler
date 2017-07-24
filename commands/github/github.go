@@ -160,7 +160,11 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("Please login first...")
 								return
 							}
-							ShowIssue()
+							if err := ShowIssue(); err != nil {
+								color.Red(err.Error())
+								return
+							}
+							color.Green("Okay")
 						},
 					},
 				},
@@ -254,39 +258,35 @@ func ShowIssue() error {
 			return err
 		}
 	}
-	if len(localStorage.Github.Issue) > 0 {
 
-		for count, currentIssue := range localStorage.Github.Issue {
+	for count, currentIssue := range localStorage.Github.Issue {
 
-			issue, _, err := githubClient.Issues.Get(ctx, currentIssue.Owner, currentIssue.Repo, currentIssue.Number)
+		issue, _, err := githubClient.Issues.Get(ctx, currentIssue.Owner, currentIssue.Repo, currentIssue.Number)
 
-			if err != nil {
-				color.Red(err.Error())
-				return err
-			}
-			if localStorage.Github.CurrentIssue != nil {
-				if localStorage.Github.CurrentIssue.IssueURL == currentIssue.IssueURL {
-					fmt.Printf("Current issue >>>> ")
-				}
-			}
-			fmt.Printf("%d: issue at %s with status %s\n", count, currentIssue.IssueURL, issue.GetState())
-
-			if len(currentIssue.PullRequests) > 0 {
-				fmt.Printf("\n")
-				for _, pr := range currentIssue.PullRequests {
-
-					p, _, err := githubClient.PullRequests.Get(ctx, pr.Owner, pr.Repo, pr.Number)
-					if err != nil {
-						color.Red(err.Error())
-						return err
-					}
-					fmt.Printf("[STATUS:%s]%s/%s  %s base: %s head %s %s\n", p.GetState(), pr.Owner, pr.Repo, p.GetHTMLURL(), pr.Base, pr.Head, pr.Title)
-
-				}
+		if err != nil {
+			color.Red(err.Error())
+			return err
+		}
+		if localStorage.Github.CurrentIssue != nil {
+			if localStorage.Github.CurrentIssue.IssueURL == currentIssue.IssueURL {
+				fmt.Printf("Current issue >>>> ")
 			}
 		}
-	} else {
-		color.Red("No working issue set")
+		fmt.Printf("%d: issue at %s with status %s\n", count, currentIssue.IssueURL, issue.GetState())
+
+		if len(currentIssue.PullRequests) > 0 {
+			fmt.Printf("\n")
+			for _, pr := range currentIssue.PullRequests {
+
+				p, _, err := githubClient.PullRequests.Get(ctx, pr.Owner, pr.Repo, pr.Number)
+				if err != nil {
+					color.Red(err.Error())
+					return err
+				}
+				fmt.Printf("[STATUS:%s]%s/%s  %s base: %s head %s %s\n", p.GetState(), pr.Owner, pr.Repo, p.GetHTMLURL(), pr.Base, pr.Head, pr.Title)
+
+			}
+		}
 	}
 	return nil
 }
