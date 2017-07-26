@@ -8,7 +8,8 @@ import (
 	"github.com/fatih/color"
 )
 
-//ShellCommand ...
+//ShellCommand lets you perform a shell command in bash
+//It also captures stderr and stdout into Kepler
 func ShellCommand(command string, path string, validated bool) {
 	cmd := exec.Command("bash", "-c", command)
 	if path != "" {

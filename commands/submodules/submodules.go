@@ -12,7 +12,7 @@ import (
 	"gopkg.in/src-d/go-git.v4"
 )
 
-//AddCommands for this module
+//AddCommands for the submodule module
 func AddCommands(cli *cli.Cli) {
 
 	cli.AddCommand(command.Command{
@@ -73,7 +73,8 @@ func loopSubmodules(path string, callback func(sub *git.Submodule) error) error 
 	return nil
 }
 
-//LoopSubmodules ...
+//LoopSubmodules will run through all submodules in the current repository
+//It will return a nil error object on success
 func LoopSubmodules(callback func(sub *git.Submodule)) error {
 	loopSubmodules(".", func(sub *git.Submodule) error {
 		callback(sub)
@@ -82,7 +83,9 @@ func LoopSubmodules(callback func(sub *git.Submodule)) error {
 	return nil
 }
 
-//CommandSubmodules ...
+//CommandSubmodules allows a shell command to be run in the current repository submodules
+//It would be a good place to run commands such as `ps` or `ls`
+//It will return a nil error object on success
 func CommandSubmodules(output string) error {
 
 	loopSubmodules(".", func(sub *git.Submodule) error {

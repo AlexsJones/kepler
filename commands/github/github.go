@@ -22,7 +22,7 @@ var githubClient *github.Client
 var ctx context.Context
 var localStorage *storage.Storage
 
-//AddCommands for this module
+//AddCommands for the github module
 func AddCommands(cli *cli.Cli) {
 
 	cli.AddCommand(command.Command{
@@ -213,7 +213,8 @@ func AddCommands(cli *cli.Cli) {
 	})
 }
 
-//CreateIssue ...
+//CreateIssue creates an issue based on the selected repository
+//This will return on success an issue object that is stored in Kepler
 func CreateIssue(owner string, repo string, title string) error {
 	var err error
 	if localStorage == nil {
@@ -249,7 +250,7 @@ func CreateIssue(owner string, repo string, title string) error {
 	return nil
 }
 
-//ShowIssue displays current working issue
+//ShowIssue shows stored issues and highlights the current working issue if set
 func ShowIssue() error {
 	var err error
 	if localStorage == nil {
@@ -291,7 +292,7 @@ func ShowIssue() error {
 	return nil
 }
 
-//UnsetIssue from storage
+//UnsetIssue the working issue from storage if set
 func UnsetIssue() error {
 	var err error
 	if localStorage == nil {
@@ -305,7 +306,7 @@ func UnsetIssue() error {
 	return storage.Save(localStorage)
 }
 
-//SetIssue in storage
+//SetIssue in storage using the issue index number
 func SetIssue(issueNumber int) error {
 	var err error
 	if localStorage == nil {
@@ -327,7 +328,8 @@ func SetIssue(issueNumber int) error {
 	return storage.Save(localStorage)
 }
 
-//CreatePR makes a new pull request
+//CreatePR makes a new pull request with the given criteria
+//It returns an error object with nil on success
 func CreatePR(owner string, repo string, base string, head string, title string) error {
 
 	fmt.Printf("Owner: %s\n", owner)
@@ -372,7 +374,7 @@ func CreatePR(owner string, repo string, base string, head string, title string)
 	return nil
 }
 
-//AttachIssuetoPr ...
+//AttachIssuetoPr will use the current working issue to attach a new pull request too
 func AttachIssuetoPr(owner string, reponame string, number string) error {
 
 	if localStorage == nil {

@@ -56,7 +56,7 @@ type Github struct {
 	CurrentIssue *Issue  `json:"currentissue"`
 }
 
-//Issue ...
+//Issue object structure
 type Issue struct {
 	IssueURL     string        `json:"issueurl"`
 	Owner        string        `json:"owner"`
@@ -65,7 +65,7 @@ type Issue struct {
 	PullRequests []PullRequest `json:"pullrequests"`
 }
 
-//PullRequest ...
+//PullRequest object structure
 type PullRequest struct {
 	Repo   string
 	Owner  string
@@ -76,6 +76,7 @@ type PullRequest struct {
 }
 
 //NewStorage object
+//It returns *Storage
 func NewStorage() *Storage {
 
 	s := &Storage{}
@@ -92,7 +93,7 @@ func path() (string, error) {
 	return p.Join(s, store), nil
 }
 
-//Exists in kepler
+//Exists checks if .kepler file has been set
 func Exists() (bool, error) {
 	pout, err := path()
 	if err != nil {

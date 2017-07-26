@@ -14,9 +14,7 @@ import (
 	"gopkg.in/src-d/go-git.v4"
 )
 
-//AddCommands for this module
-
-//AddCommands for this module
+//AddCommands for the node module
 func AddCommands(cli *cli.Cli) {
 
 	cli.AddCommand(command.Command{
@@ -100,6 +98,9 @@ func recursePackages(p *PackageJSON, callback func(moduleName string, key string
 }
 
 //HasPackage searches for packages references
+//This is a useful way of whether a repository uses a packages
+//It only requires package name without version
+//On success it returns a bool and nil error object
 func HasPackage(subPath string, filename string, target string) (bool, error) {
 
 	filepath := path.Join(subPath, filename)
@@ -125,7 +126,8 @@ func HasPackage(subPath string, filename string, target string) (bool, error) {
 	return wasFound, nil
 }
 
-//FixLinks ...
+//FixLinks will perform a regex like action within a package.json to alter the url or file path
+//It returns a nil error object on success
 func FixLinks(subPath string, filename string, prefix string, target string, shouldDelete bool) error {
 
 	filepath := path.Join(subPath, filename)

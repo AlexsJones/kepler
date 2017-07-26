@@ -1,3 +1,6 @@
+//Kepler is a tool for helping developers work in the cli with github and other tools
+//It's speciality is the management of multiple working issues and threading those together with pull requests
+//Ideal audience would be a developer working across multiple repositories
 package main
 
 import (
@@ -12,6 +15,7 @@ import (
 	"github.com/dimiro1/banner"
 )
 
+//Ascii art
 const b string = `
 {{ .AnsiColor.Green }} _  _  ____  ____  __    ____  ____
 {{ .AnsiColor.Green }}( )/ )( ___)(  _ \(  )  ( ___)(  _ \
