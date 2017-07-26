@@ -1,3 +1,4 @@
+//Package sh acts as a wrapper around system commands
 package sh
 
 import (

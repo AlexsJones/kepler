@@ -1,3 +1,5 @@
+//Package submodules is a modular way of interacting with submodules
+//This package is often chained together with other packages to create complex commands
 package submodules
 
 import (

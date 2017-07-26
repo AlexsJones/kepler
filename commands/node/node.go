@@ -1,3 +1,5 @@
+//Package node provides a modular way of interacting with node commands
+//This primarily is for dealing with nodejs files such as the package.json
 package node
 
 import (

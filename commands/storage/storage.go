@@ -1,3 +1,4 @@
+//Package storage is a file system abstraction for storing Kepler data
 package storage
 
 import (

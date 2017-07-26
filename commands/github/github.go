@@ -1,3 +1,5 @@
+//Package github provides a modular way of interacting with github
+//This is primary gateway to create/deleting and reviewing both pull requests and issues
 package github
 
 import (
