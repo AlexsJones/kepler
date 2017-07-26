@@ -5,6 +5,9 @@ _  _  ____  ____  __    ____  ____
 (_)\_)(____)(__)  (____)(____)(_)\_)
 ```
 
+[![GoDoc](https://godoc.org/github.com/AlexsJones/kepler?status.svg)](https://godoc.org/github.com/AlexsJones/kepler)
+
+
 Designed to do a few things well...
 - work with github issues & pr's.
 - let you run multiple submodule commands.
