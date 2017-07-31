@@ -5,11 +5,11 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/AlexsJones/cli/cli",
-			"Rev": "195c536e1347c016b140983503bbdf8829164d1b"
+			"Rev": "16ce22316cfa5d052326607e0bb50952277f43f3"
 		},
 		{
 			"ImportPath": "github.com/AlexsJones/cli/command",
-			"Rev": "195c536e1347c016b140983503bbdf8829164d1b"
+			"Rev": "16ce22316cfa5d052326607e0bb50952277f43f3"
 		},
 		{
 			"ImportPath": "github.com/chzyer/readline",
@@ -97,7 +97,7 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "057a25b06247e0c51ba15d8ae475feb2fcb72164"
+			"Rev": "f5079bd7f6f74e23c4d65efa0f4ce14cbd6a3c0f"
 		},
 		{
 			"ImportPath": "golang.org/x/oauth2",
