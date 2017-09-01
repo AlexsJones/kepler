@@ -211,6 +211,21 @@ func AddCommands(cli *cli.Cli) {
 					color.Green("Authentication Successful.")
 				},
 			},
+			command.Command{
+				Name: "fetch",
+				Help: "fetch remote repos",
+				Func: func(args []string) {
+					if githubClient == nil || localStorage == nil {
+						fmt.Println("Please login first...")
+						return
+					}
+					if err := FetchRepos(); err != nil {
+						color.Red(err.Error())
+						return
+					}
+					color.Green("Okay")
+				},
+			},
 		},
 	})
 }
@@ -412,5 +427,43 @@ func AttachIssuetoPr(owner string, reponame string, number string) error {
 		return err
 	}
 	color.Green("Okay")
+	return nil
+}
+
+//FetchRepos into the current working directory
+func FetchRepos() error {
+
+	var count = 0
+	var repoList = make(map[string]string)
+
+	opts := github.RepositoryListOptions{}
+
+	opts.PerPage = 20
+	for {
+		opts.Page = count
+		repos, resp, err := githubClient.Repositories.List(ctx, "", &opts)
+		if err != nil {
+			return err
+		}
+		if len(repos) == 0 || err != nil || resp.StatusCode != 200 {
+			break
+		}
+		log.Printf("Fetched page %d from github\n", count)
+		count++
+
+		for _, repo := range repos {
+			repoList[repo.GetName()] = repo.GetSSHURL()
+		}
+	}
+
+	for k, v := range repoList {
+		fmt.Printf("%s -> %s\n", k, v)
+	}
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Fetch from remotes?(Y/N): ")
+	text, _ := reader.ReadString('\n')
+	if strings.Contains(text, "Y") {
+		color.Green("Fetching..")
+	}
 	return nil
 }
