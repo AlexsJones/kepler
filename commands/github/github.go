@@ -9,8 +9,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
@@ -464,6 +466,12 @@ func FetchRepos() error {
 	text, _ := reader.ReadString('\n')
 	if strings.Contains(text, "Y") {
 		color.Green("Fetching..")
+
+		for name, repo := range repoList {
+			exec.Command("git", fmt.Sprintf("clone %s", repo))
+			color.Green(fmt.Sprintf("Fetched %s\n", name))
+			time.Sleep(time.Second)
+		}
 	}
 	return nil
 }
