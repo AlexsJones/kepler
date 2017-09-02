@@ -465,10 +465,13 @@ func FetchRepos() error {
 	fmt.Print("Fetch from remotes?(Y/N): ")
 	text, _ := reader.ReadString('\n')
 	if strings.Contains(text, "Y") {
-		color.Green("Fetching..")
 
 		for name, repo := range repoList {
-			exec.Command("git", fmt.Sprintf("clone %s", repo))
+			fmt.Printf("Fetching %s\n", name)
+			out, err := exec.Command("git", "clone", fmt.Sprintf("%s", repo)).Output()
+			if err != nil {
+				color.Red(fmt.Sprintf("%s %s", string(out), err.Error()))
+			}
 			color.Green(fmt.Sprintf("Fetched %s\n", name))
 			time.Sleep(time.Second)
 		}
