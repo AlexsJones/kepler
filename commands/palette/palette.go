@@ -3,6 +3,8 @@ package palette
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
@@ -44,6 +46,35 @@ func AddCommands(cli *cli.Cli) {
 
 						}
 					}
+				},
+			},
+			command.Command{
+				Name: "show",
+				Help: "Show repositories in the palette as part of the current working issue",
+				Func: func(args []string) {
+
+					if github.GithubClient == nil || github.LocalStorage == nil {
+						fmt.Println("Please login first...")
+						return
+					}
+					if github.LocalStorage.Github.CurrentIssue == nil {
+						fmt.Println("There is no working issue set; set with github issue set")
+						return
+					}
+					for k, v := range github.LocalStorage.Github.CurrentIssue.Palette {
+						cmd := exec.Command("git", "branch")
+						cmd.Dir = v
+						out, err := cmd.Output()
+						if err != nil {
+							color.Red(err.Error())
+							return
+						}
+						trimmed := strings.TrimSuffix(string(out), "\n")
+						trimmed = strings.TrimPrefix(trimmed, "*")
+						trimmed = strings.TrimSpace(trimmed)
+						fmt.Println(fmt.Sprintf("Name: %s Branch: %s Path: %s", k, trimmed, v))
+					}
+					color.Green("Okay")
 				},
 			},
 		},

@@ -259,7 +259,17 @@ func AddCommands(cli *cli.Cli) {
 										return
 									}
 									for k, v := range LocalStorage.Github.CurrentIssue.Palette {
-										fmt.Println(fmt.Sprintf("Name: %s Path: %s", k, v))
+										cmd := exec.Command("git", "branch")
+										cmd.Dir = v
+										out, err := cmd.Output()
+										if err != nil {
+											color.Red(err.Error())
+											return
+										}
+										trimmed := strings.TrimSuffix(string(out), "\n")
+										trimmed = strings.TrimPrefix(trimmed, "*")
+										trimmed = strings.TrimSpace(trimmed)
+										fmt.Println(fmt.Sprintf("Name: %s Branch: %s Path: %s", k, trimmed, v))
 									}
 									color.Green("Okay")
 								},
