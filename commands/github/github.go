@@ -87,7 +87,7 @@ func AddCommands(cli *cli.Cli) {
 			},
 			command.Command{
 				Name: "issue",
-				Help: "Issue command palette",
+				Help: "Issue commands",
 				Func: func(args []string) {
 					fmt.Println("See help for working with issue")
 				},
@@ -159,6 +159,21 @@ func AddCommands(cli *cli.Cli) {
 					command.Command{
 						Name: "show",
 						Help: "show the current working issue",
+						Func: func(args []string) {
+							if githubClient == nil || localStorage == nil {
+								fmt.Println("Please login first...")
+								return
+							}
+							if err := ShowIssue(); err != nil {
+								color.Red(err.Error())
+								return
+							}
+							color.Green("Okay")
+						},
+					},
+					command.Command{
+						Name: "palette",
+						Help: "Manipulate the issue palette of working repos",
 						Func: func(args []string) {
 							if githubClient == nil || localStorage == nil {
 								fmt.Println("Please login first...")
@@ -278,7 +293,9 @@ func ShowIssue() error {
 			return err
 		}
 	}
-
+	if len(localStorage.Github.Issue) == 0 {
+		return errors.New("No issue set")
+	}
 	for count, currentIssue := range localStorage.Github.Issue {
 
 		issue, _, err := githubClient.Issues.Get(ctx, currentIssue.Owner, currentIssue.Repo, currentIssue.Number)
@@ -320,6 +337,9 @@ func UnsetIssue() error {
 			return err
 		}
 
+	}
+	if localStorage.Github.CurrentIssue == nil {
+		return errors.New("No issue to unset")
 	}
 	localStorage.Github.CurrentIssue = nil
 	return storage.Save(localStorage)
