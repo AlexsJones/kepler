@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -175,35 +176,104 @@ func AddCommands(cli *cli.Cli) {
 						Name: "palette",
 						Help: "Manipulate the issue palette of working repos",
 						Func: func(args []string) {
-							fmt.Println("See help for setting an issues repos")
+							fmt.Println("Please run palette commands from your meta repo working directory")
 						},
 						SubCommands: []command.Command{
 							command.Command{
 								Name: "add",
 								Help: "Add a repository to the palette as part of current working issue by name <name>",
 								Func: func(args []string) {
-									color.Blue("WIP")
+									if len(args) == 0 || len(args) < 1 {
+										fmt.Println("Requires <issue number>")
+										return
+									}
+									if githubClient == nil || localStorage == nil {
+										fmt.Println("Please login first...")
+										return
+									}
+									if localStorage.Github.CurrentIssue == nil {
+										fmt.Println("There is no working issue set; set with github issue set")
+										return
+									}
+									if _, err := os.Stat(args[0]); os.IsNotExist(err) {
+										color.Red(fmt.Sprintf("The named repo %s does not exist as a sub directory of the current working directory", args[0]))
+										return
+									}
+									dir, err := os.Getwd()
+									if err != nil {
+										log.Fatal(err)
+									}
+									p := path.Join(dir, args[0])
+									localStorage.Github.CurrentIssue.Palette[args[0]] = p
+									storage.Save(localStorage)
+									color.Green("Okay")
 								},
 							},
 							command.Command{
-								Name: "Remove",
+								Name: "remove",
 								Help: "Remove a repository from the palette as part of the current working issue by name <name>",
 								Func: func(args []string) {
-									color.Blue("WIP")
+									if len(args) == 0 || len(args) < 1 {
+										fmt.Println("Requires <issue number>")
+										return
+									}
+									if githubClient == nil || localStorage == nil {
+										fmt.Println("Please login first...")
+										return
+									}
+									if localStorage.Github.CurrentIssue == nil {
+										fmt.Println("There is no working issue set; set with github issue set")
+										return
+									}
+									found := false
+									for k := range localStorage.Github.CurrentIssue.Palette {
+										if strings.Compare(k, args[0]) == 0 {
+											found = true
+											delete(localStorage.Github.CurrentIssue.Palette, k)
+											storage.Save(localStorage)
+										}
+									}
+									if found != true {
+										color.Red(fmt.Sprintf("There was no repo matching the name %s in the palette", args[0]))
+										return
+									}
+									color.Green("Okay")
 								},
 							},
 							command.Command{
-								Name: "Show",
+								Name: "show",
 								Help: "Show repositories in the palette as part of the current working issue",
 								Func: func(args []string) {
-									color.Blue("WIP")
+
+									if githubClient == nil || localStorage == nil {
+										fmt.Println("Please login first...")
+										return
+									}
+									if localStorage.Github.CurrentIssue == nil {
+										fmt.Println("There is no working issue set; set with github issue set")
+										return
+									}
+									for k, v := range localStorage.Github.CurrentIssue.Palette {
+										fmt.Println(fmt.Sprintf("Name: %s Path: %s", k, v))
+									}
+									color.Green("Okay")
 								},
 							},
 							command.Command{
-								Name: "Delete",
+								Name: "delete",
 								Help: "Delete all repositories in the palette as part of the current working issue",
 								Func: func(args []string) {
-									color.Blue("WIP")
+
+									if githubClient == nil || localStorage == nil {
+										fmt.Println("Please login first...")
+										return
+									}
+									if localStorage.Github.CurrentIssue == nil {
+										fmt.Println("There is no working issue set; set with github issue set")
+										return
+									}
+									localStorage.Github.CurrentIssue.Palette = make(map[string]string)
+									color.Green("Okay")
 								},
 							},
 						},
@@ -300,6 +370,7 @@ func CreateIssue(owner string, repo string, title string) error {
 	stIssue.Owner = owner
 	stIssue.Repo = repo
 	stIssue.Number = issue.GetNumber()
+	stIssue.Palette = make(map[string]string)
 
 	localStorage.Github.Issue = append(localStorage.Github.Issue, stIssue)
 	storage.Save(localStorage)

@@ -64,6 +64,7 @@ type Issue struct {
 	Repo         string        `json:"repo"`
 	Number       int           `json:"number"`
 	PullRequests []PullRequest `json:"pullrequests"`
+	Palette      map[string]string
 }
 
 //PullRequest object structure
