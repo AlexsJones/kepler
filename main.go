@@ -10,6 +10,7 @@ import (
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/kepler/commands/github"
 	"github.com/AlexsJones/kepler/commands/node"
+	"github.com/AlexsJones/kepler/commands/palette"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kepler/commands/submodules"
 	"github.com/dimiro1/banner"
@@ -38,7 +39,7 @@ func main() {
 	github.AddCommands(cli)
 	submodules.AddCommands(cli)
 	storage.AddCommands(cli)
-
+	palette.AddCommands(cli)
 	//-------------------------------------------
 	cli.Run()
 }
