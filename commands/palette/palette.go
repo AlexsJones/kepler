@@ -41,6 +41,7 @@ func AddCommands(cli *cli.Cli) {
 							storage.Save(github.LocalStorage)
 						} else {
 							color.Green(fmt.Sprintf("Switching %s to branch %s", k, args[0]))
+
 						}
 					}
 				},

@@ -23,8 +23,13 @@ import (
 	"golang.org/x/oauth2"
 )
 
+//GithubClient is the global github interface
 var GithubClient *github.Client
+
+//Ctx is the github oauth context
 var Ctx context.Context
+
+//LocalStorage is a reference to the local storage handle
 var LocalStorage *storage.Storage
 
 //AddCommands for the github module
