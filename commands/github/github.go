@@ -175,15 +175,37 @@ func AddCommands(cli *cli.Cli) {
 						Name: "palette",
 						Help: "Manipulate the issue palette of working repos",
 						Func: func(args []string) {
-							if githubClient == nil || localStorage == nil {
-								fmt.Println("Please login first...")
-								return
-							}
-							if err := ShowIssue(); err != nil {
-								color.Red(err.Error())
-								return
-							}
-							color.Green("Okay")
+							fmt.Println("See help for setting an issues repos")
+						},
+						SubCommands: []command.Command{
+							command.Command{
+								Name: "add",
+								Help: "Add a repository to the palette as part of current working issue by name <name>",
+								Func: func(args []string) {
+									color.Blue("WIP")
+								},
+							},
+							command.Command{
+								Name: "Remove",
+								Help: "Remove a repository from the palette as part of the current working issue by name <name>",
+								Func: func(args []string) {
+									color.Blue("WIP")
+								},
+							},
+							command.Command{
+								Name: "Show",
+								Help: "Show repositories in the palette as part of the current working issue",
+								Func: func(args []string) {
+									color.Blue("WIP")
+								},
+							},
+							command.Command{
+								Name: "Delete",
+								Help: "Delete all repositories in the palette as part of the current working issue",
+								Func: func(args []string) {
+									color.Blue("WIP")
+								},
+							},
 						},
 					},
 				},
