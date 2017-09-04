@@ -40,6 +40,12 @@ storage sub commands:
 [![asciicast](https://asciinema.org/a/uccLCSINhgn48JBMFMEDNLCZg.png)](https://asciinema.org/a/uccLCSINhgn48JBMFMEDNLCZg)
 
 
+### Working with github issues and selected repos with `palette`
+
+[![asciicast](https://asciinema.org/a/QRO4nWiZycVLi8jZb9TFnUbau.png)](https://asciinema.org/a/QRO4nWiZycVLi8jZb9TFnUbau)
+
+
+
 ## Installation
 
 Either:
