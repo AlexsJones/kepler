@@ -266,7 +266,8 @@ func AddCommands(cli *cli.Cli) {
 											color.Red(err.Error())
 											return
 										}
-										trimmed := strings.TrimSuffix(string(out), "\n")
+										ar := strings.Split(string(out), " ")
+										trimmed := strings.TrimSuffix(string(ar[1]), "\n")
 										trimmed = strings.TrimPrefix(trimmed, "*")
 										trimmed = strings.TrimSpace(trimmed)
 										fmt.Println(fmt.Sprintf("Name: %s Branch: %s Path: %s", k, trimmed, v))
