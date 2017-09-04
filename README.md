@@ -13,6 +13,7 @@ Designed to do a few things well...
 - let you run multiple submodule commands.
 - work with npm modules within submodules.
 ```
+
 >>> help
 npm sub commands:
 	[npm] file: relink an npm package locally<prefix> <string>
@@ -22,18 +23,29 @@ github sub commands:
 	[github] pr: pr command palette
 		[pr] attach: attach the current issue to a pr <owner> <reponame> <prnumber>
 		[pr] create: create a pr <owner> <repo> <base> <head> <title>
-	[github] issue: Issue command palette
+	[github] issue: Issue commands
 		[issue] create: set the current working issue <owner> <repo> <issuename>
-		[issue] set: set the current working issue <issue url>
+		[issue] set: set the current working issue <issue number>
 		[issue] unset: unset the current working issue
 		[issue] show: show the current working issue
+		[issue] palette: Manipulate the issue palette of working repos
+			[palette] add: Add a repository to the palette as part of current working issue by name <name>
+			[palette] remove: Remove a repository from the palette as part of the current working issue by name <name>
+			[palette] show: Show repositories in the palette as part of the current working issue
+			[palette] delete: Delete all repositories in the palette as part of the current working issue
 	[github] login: use an access token to login to github
+	[github] fetch: fetch remote repos
 submodule sub commands:
 	[submodule] branch: branch command palette
 	[submodule] exec: execute in all submodules <command string>
 storage sub commands:
 	[storage] clear: clear all data from kepler
 	[storage] show: show storage data
+palette sub commands:
+	[palette] branch: switch branches or create if they don't exist for working issue palette repos <branchname>
+		[branch] push: For pushing the local branches to new/existing remotes
+		[branch] local: For switching local branches on palette repos
+	[palette] show: Show repositories in the palette as part of the current working issue
 
 
 ```
