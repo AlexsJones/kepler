@@ -55,6 +55,7 @@ type Storage struct {
 type Kubebuilder struct {
 	ProjectName string `json:"projectname"`
 	TopicName   string `json:"topicname"`
+	SubName     string `json:"subscriptionname"`
 }
 
 //Github specific sub structure
