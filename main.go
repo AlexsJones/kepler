@@ -9,6 +9,7 @@ import (
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/kepler/commands/github"
+	"github.com/AlexsJones/kepler/commands/kubebuilder"
 	"github.com/AlexsJones/kepler/commands/node"
 	"github.com/AlexsJones/kepler/commands/palette"
 	"github.com/AlexsJones/kepler/commands/storage"
@@ -34,7 +35,7 @@ func main() {
 	cli := cli.NewCli()
 
 	//Modules to add ----------------------------
-
+	kubebuilder.AddCommands(cli)
 	node.AddCommands(cli)
 	github.AddCommands(cli)
 	submodules.AddCommands(cli)

@@ -19,7 +19,7 @@ func AddCommands(cli *cli.Cli) {
 
 	cli.AddCommand(command.Command{
 		Name: "storage",
-		Help: "shell command palette",
+		Help: "storage command palette",
 		Func: func(args []string) {
 			fmt.Println("See help for working with shell")
 		},
@@ -47,7 +47,14 @@ var store = ".kepler"
 
 //Storage structure
 type Storage struct {
-	Github *Github `json:"github"`
+	Github      *Github      `json:"github"`
+	Kubebuilder *Kubebuilder `json:"kubebuilder"`
+}
+
+//Kubebuilder specific sub structure
+type Kubebuilder struct {
+	ProjectName string `json:"projectname"`
+	TopicName   string `json:"topicname"`
 }
 
 //Github specific sub structure
@@ -83,6 +90,7 @@ func NewStorage() *Storage {
 
 	s := &Storage{}
 	s.Github = &Github{}
+	s.Kubebuilder = &Kubebuilder{}
 
 	return s
 }

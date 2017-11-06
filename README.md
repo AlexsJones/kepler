@@ -12,6 +12,7 @@ Designed to do a few things well...
 - work with github issues & pr's.
 - let you run multiple submodule commands.
 - work with npm modules within submodules.
+- works with kubebuilder to deploy kubernetes projects (https://github.com/AlexsJones/kubebuilder.git)
 ```
 
 >>> help
