@@ -2,14 +2,19 @@ package kubebuilder
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
 	"github.com/AlexsJones/kepler/commands/storage"
+	"github.com/AlexsJones/kubebuilder/src/data"
 	"github.com/fatih/color"
+	yaml "gopkg.in/yaml.v2"
 )
 
 var localStorage *storage.Storage
@@ -31,6 +36,7 @@ func AddCommands(cli *cli.Cli) {
 					b, err := storage.Exists()
 					if err != nil {
 						fmt.Println(err.Error())
+						return
 					}
 					if b {
 						//Load and save
@@ -58,6 +64,7 @@ func AddCommands(cli *cli.Cli) {
 							storage.Save(localStorage)
 						}
 					}
+					color.Green("Okay")
 				},
 			}, command.Command{
 				Name: "deploy",
@@ -67,9 +74,40 @@ func AddCommands(cli *cli.Cli) {
 						fmt.Println("Please run the setup first...")
 						return
 					}
+					//--
+					if _, err := loadKubebuilderFile(); err != nil {
+						color.Red(err.Error())
+					}
+					color.Green("Okay")
 				},
 			},
 		},
 	},
 	)
+}
+
+func loadKubebuilderFile() (*data.BuildDefinition, error) {
+
+	if _, err := os.Stat(".kubebuilder"); os.IsNotExist(err) {
+		return nil, errors.New(".kubebuilder folder does not exist")
+	}
+	if _, err := os.Stat(".kubebuilder/build.yaml"); os.IsNotExist(err) {
+		return nil, errors.New(".kubebuilder folder does not exist")
+	}
+
+	//Load yaml
+	raw, err := ioutil.ReadFile(".kubebuilder/build.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	//Hand cranking a build definition for the test
+	builddef := data.BuildDefinition{}
+
+	err = yaml.Unmarshal(raw, &builddef)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	log.Printf("%v\n", builddef)
+
+	return &builddef, nil
 }
