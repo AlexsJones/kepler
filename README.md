@@ -6,7 +6,8 @@ _  _  ____  ____  __    ____  ____
 ```
 
 [![GoDoc](https://godoc.org/github.com/AlexsJones/kepler?status.svg)](https://godoc.org/github.com/AlexsJones/kepler)
-
+[![GitHub issues](https://img.shields.io/github/issues/AlexsJones/kepler.svg)](https://github.com/AlexsJones/kepler/issues)
+[![GitHub stars](https://img.shields.io/github/stars/AlexsJones/kepler.svg)](https://github.com/AlexsJones/kepler/stargazers)
 
 Designed to do a few things well...
 - work with github issues & pr's.
