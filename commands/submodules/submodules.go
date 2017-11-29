@@ -21,6 +21,7 @@ func AddCommands(cli *cli.Cli) {
 		Name: "submodule",
 		Help: "submodule command palette",
 		Func: func(args []string) {
+
 			fmt.Println("See help for working with submodules")
 		},
 		SubCommands: []command.Command{

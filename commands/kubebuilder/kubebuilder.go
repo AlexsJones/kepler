@@ -54,23 +54,23 @@ func AddCommands(cli *cli.Cli) {
 						reader := bufio.NewReader(os.Stdin)
 						token, _ := reader.ReadString('\n')
 						if strings.TrimSpace(token) == "Y" {
-							localStorage = storage.NewStorage()
+
 							fmt.Print("Please provide project name (e.g. my-gcloud-project):")
 							reader := bufio.NewReader(os.Stdin)
 							token, _ := reader.ReadString('\n')
-							localStorage.Kubebuilder.ProjectName = strings.TrimSpace(token)
+							storage.GetInstance().Kubebuilder.ProjectName = strings.TrimSpace(token)
 
 							fmt.Print("Please provide pubsub topic (e.g.cadium):")
 							reader = bufio.NewReader(os.Stdin)
 							token, _ = reader.ReadString('\n')
-							localStorage.Kubebuilder.TopicName = strings.TrimSpace(token)
+							storage.GetInstance().Kubebuilder.TopicName = strings.TrimSpace(token)
 
 							fmt.Print("Please provide pubsub subscription (e.g.cadium-sub):")
 							reader = bufio.NewReader(os.Stdin)
 							token, _ = reader.ReadString('\n')
-							localStorage.Kubebuilder.SubName = strings.TrimSpace(token)
+							storage.GetInstance().Kubebuilder.SubName = strings.TrimSpace(token)
 
-							storage.Save(localStorage)
+							storage.GetInstance().Save()
 						}
 					}
 					color.Green("Okay")

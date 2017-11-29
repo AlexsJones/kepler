@@ -35,7 +35,7 @@ func AddCommands(cli *cli.Cli) {
 						Name: "push",
 						Help: "For pushing the local branches to new/existing remotes",
 						Func: func(args []string) {
-							if github.GithubClient == nil || github.LocalStorage == nil {
+							if github.GithubClient == nil {
 								fmt.Println("Please login first...")
 								return
 							}
@@ -43,15 +43,15 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("provide the branch name to switch repo in the palette to <branchname>")
 								return
 							}
-							for k, v := range github.LocalStorage.Github.CurrentIssue.Palette {
+							for k, v := range storage.GetInstance().Github.CurrentIssue.Palette {
 								if _, err := os.Stat(v); os.IsNotExist(err) {
 									color.Red(fmt.Sprintf("Warning the repo %s does not exist at the path %s, removing from the palette\n", k, v))
-									delete(github.LocalStorage.Github.CurrentIssue.Palette, k)
-									storage.Save(github.LocalStorage)
+									delete(storage.GetInstance().Github.CurrentIssue.Palette, k)
+									storage.GetInstance().Save()
 								} else if _, err := os.Stat(path.Join(v, ".git")); os.IsNotExist(err) {
 									color.Red(fmt.Sprintf("%s .git directory does not exist removing from the palette\n", k))
-									delete(github.LocalStorage.Github.CurrentIssue.Palette, k)
-									storage.Save(github.LocalStorage)
+									delete(storage.GetInstance().Github.CurrentIssue.Palette, k)
+									storage.GetInstance().Save()
 								} else {
 									color.Green(fmt.Sprintf("Pushing %s branches to remote %s:%s", k, args[0], args[0]))
 									cmd := exec.Command("git", "push", "origin", fmt.Sprintf("%s:%s", args[0], args[0]))
@@ -69,7 +69,7 @@ func AddCommands(cli *cli.Cli) {
 						Name: "local",
 						Help: "For switching local branches on palette repos",
 						Func: func(args []string) {
-							if github.GithubClient == nil || github.LocalStorage == nil {
+							if github.GithubClient == nil {
 								fmt.Println("Please login first...")
 								return
 							}
@@ -77,15 +77,15 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("provide the branch name to switch repo in the palette to <branchname>")
 								return
 							}
-							for k, v := range github.LocalStorage.Github.CurrentIssue.Palette {
+							for k, v := range storage.GetInstance().Github.CurrentIssue.Palette {
 								if _, err := os.Stat(v); os.IsNotExist(err) {
 									color.Red(fmt.Sprintf("Warning the repo %s does not exist at the path %s, removing from the palette\n", k, v))
-									delete(github.LocalStorage.Github.CurrentIssue.Palette, k)
-									storage.Save(github.LocalStorage)
+									delete(storage.GetInstance().Github.CurrentIssue.Palette, k)
+									storage.GetInstance().Save()
 								} else if _, err := os.Stat(path.Join(v, ".git")); os.IsNotExist(err) {
 									color.Red(fmt.Sprintf("%s .git directory does not exist removing from the palette\n", k))
-									delete(github.LocalStorage.Github.CurrentIssue.Palette, k)
-									storage.Save(github.LocalStorage)
+									delete(storage.GetInstance().Github.CurrentIssue.Palette, k)
+									storage.GetInstance().Save()
 								} else {
 									color.Green(fmt.Sprintf("Switching %s to branch %s", k, args[0]))
 									cmd := exec.Command("git", "branch", args[0])
@@ -113,11 +113,11 @@ func AddCommands(cli *cli.Cli) {
 				Help: "Show repositories in the palette as part of the current working issue",
 				Func: func(args []string) {
 
-					if github.LocalStorage.Github.CurrentIssue == nil {
+					if storage.GetInstance().Github.CurrentIssue == nil {
 						fmt.Println("There is no working issue set; set with github issue set")
 						return
 					}
-					for k, v := range github.LocalStorage.Github.CurrentIssue.Palette {
+					for k, v := range storage.GetInstance().Github.CurrentIssue.Palette {
 						cmd := exec.Command("git", "branch")
 						cmd.Dir = v
 						out, err := cmd.Output()

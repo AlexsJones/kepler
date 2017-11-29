@@ -1,0 +1,6 @@
+name: api-core
+branch: master
+version: latest
+repository: us.gcr.io/beamery-trials
+namespace: alex
+gitsshurl: git@github.com:SeedJobs/api-core.git

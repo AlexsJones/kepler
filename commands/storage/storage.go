@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	p "path"
+	"sync"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
@@ -85,15 +86,17 @@ type PullRequest struct {
 	Number int
 }
 
-//NewStorage object
-//It returns *Storage
-func NewStorage() *Storage {
+var instance *Storage
+var once sync.Once
 
-	s := &Storage{}
-	s.Github = &Github{}
-	s.Kubebuilder = &Kubebuilder{}
-
-	return s
+//GetInstance reference to the singleton
+func GetInstance() *Storage {
+	once.Do(func() {
+		instance = &Storage{}
+		instance.Github = &Github{}
+		instance.Kubebuilder = &Kubebuilder{}
+	})
+	return instance
 }
 
 func path() (string, error) {
@@ -117,7 +120,7 @@ func Exists() (bool, error) {
 }
 
 //Save to kepler storage
-func Save(s *Storage) error {
+func (s *Storage) Save() error {
 	o, err := json.MarshalIndent(s, "", "    ")
 	if err != nil {
 		return err

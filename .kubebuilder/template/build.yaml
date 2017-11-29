@@ -1,0 +1,64 @@
+vcs:
+  type: git
+  name: {{ .name }}
+  branch: {{ .branch }}
+  path: {{ .gitsshurl }}
+  checkoutArgs: ""
+build:
+  commands: docker build --no-cache=true -t {{ .name }}:{{ .version }} .
+  docker:
+    containerID: {{ .name }}:{{ .version }}
+    buildArgs:
+      url: {{ .repoistory }}/{{ .name }}:{{ .version }}
+kubernetes:
+  namespace: {{ .namespace }}
+  service: |-
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: {{ .name }}
+      namespace: {{ .namespace }}
+    spec:
+      type: NodePort
+      selector:
+        app: {{ .name }}
+      ports:
+        - protocol: TCP
+          port: 9090
+          name: openport
+  deployment: |-
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: {{ .name }}
+      namespace: {{ .namspace }}
+    spec:
+      revisionHistoryLimit: 5
+      replicas: 2
+      minReadySeconds: 20
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 1
+      template:
+        metadata:
+          labels:
+            app: hello-go
+        spec:
+          containers:
+            - name: hello-go
+              image: us.gcr.io/beamery-trials/hello-go:latest
+              imagePullPolicy: Always
+              ports:
+                - containerPort: 9090
+  ingress: |-
+    kind: Ingress
+    apiVersion: extensions/v1beta1
+    metadata:
+      name: ingress
+      namespace: alex
+    spec:
+     backend:
+      serviceName: hello-go
+      servicePort: 9090
