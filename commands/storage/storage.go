@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	p "path"
 	"sync"
@@ -102,14 +101,12 @@ func GetInstance() *Storage {
 			instance = &Storage{}
 			instance.Github = &Github{TeamID: 0}
 			instance.Kubebuilder = &Kubebuilder{}
-			log.Println("Creating new storage object...")
 		} else {
 			i, err := Load()
 			if err != nil {
 				panic(err)
 			}
 			instance = i
-			log.Println("Using existing storage object...")
 		}
 	})
 	return instance

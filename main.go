@@ -42,5 +42,8 @@ func main() {
 	storage.AddCommands(cli)
 	palette.AddCommands(cli)
 	//-------------------------------------------
+	//Additional commands
+	github.Login()
+	//-------------------------------------------
 	cli.Run()
 }
