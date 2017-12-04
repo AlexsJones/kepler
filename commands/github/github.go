@@ -51,18 +51,9 @@ func AddCommands(cli *cli.Cli) {
 								return
 							}
 
-							teams, _, err := GithubClient.Organizations.ListTeams(Ctx, "SeedJobs", &github.ListOptions{})
-							if err != nil {
+							if err := listTeams(); err != nil {
 								color.Red(err.Error())
 								return
-							}
-							currentTeamID := storage.GetInstance().Github.TeamID
-							for _, t := range teams {
-								if currentTeamID != 0 && currentTeamID == t.GetID() {
-									fmt.Printf("Name: %s -- ID: %d [Currently set team]\n", t.GetName(), t.GetID())
-								} else {
-									fmt.Printf("Name: %s -- ID: %d\n", t.GetName(), t.GetID())
-								}
 							}
 							color.Green("Okay")
 						},
@@ -79,13 +70,9 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("set the current team id to use <teamid>")
 								return
 							}
-							i, err := strconv.Atoi(args[0])
-							if err != nil {
+							if err := setTeam(args[0]); err != nil {
 								color.Red(err.Error())
-								return
 							}
-							storage.GetInstance().Github.TeamID = i
-							storage.GetInstance().Save()
 
 							color.Green("Okay")
 						},
@@ -98,7 +85,7 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("Please login first...")
 								return
 							}
-							if err := FetchTeamRepos(); err != nil {
+							if err := fetchTeamRepos(); err != nil {
 								color.Red(err.Error())
 								return
 							}
@@ -127,7 +114,7 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("set the current working issue in the pr <owner> <reponame> <prnumber>")
 								return
 							}
-							AttachIssuetoPr(args[0], args[1], args[2])
+							attachIssuetoPr(args[0], args[1], args[2])
 						},
 					},
 					command.Command{
@@ -148,7 +135,7 @@ func AddCommands(cli *cli.Cli) {
 								conc = append(conc, str)
 							}
 
-							if err := CreatePR(args[0], args[1], args[2], args[3], strings.Join(conc, " ")); err != nil {
+							if err := createPR(args[0], args[1], args[2], args[3], strings.Join(conc, " ")); err != nil {
 								color.Red(err.Error())
 								return
 							}
@@ -182,7 +169,7 @@ func AddCommands(cli *cli.Cli) {
 								conc = append(conc, str)
 							}
 
-							if err := CreateIssue(args[0], args[1], strings.Join(conc, " ")); err != nil {
+							if err := createIssue(args[0], args[1], strings.Join(conc, " ")); err != nil {
 								color.Red(err.Error())
 							} else {
 								color.Green("Okay")
@@ -206,7 +193,7 @@ func AddCommands(cli *cli.Cli) {
 								color.Red(error.Error())
 								return
 							}
-							if err := SetIssue(i); err != nil {
+							if err := setIssue(i); err != nil {
 								color.Red(err.Error())
 								return
 							}
@@ -221,7 +208,7 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("Please login first...")
 								return
 							}
-							if err := UnsetIssue(); err != nil {
+							if err := unsetIssue(); err != nil {
 								color.Red(err.Error())
 								return
 							}
@@ -236,7 +223,7 @@ func AddCommands(cli *cli.Cli) {
 								fmt.Println("Please login first...")
 								return
 							}
-							if err := ShowIssue(); err != nil {
+							if err := showIssue(); err != nil {
 								color.Red(err.Error())
 								return
 							}
@@ -379,7 +366,7 @@ func AddCommands(cli *cli.Cli) {
 						fmt.Println("Please login first...")
 						return
 					}
-					if err := FetchRepos(); err != nil {
+					if err := fetchRepos(); err != nil {
 						color.Red(err.Error())
 						return
 					}

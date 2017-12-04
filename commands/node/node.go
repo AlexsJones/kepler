@@ -30,7 +30,7 @@ func AddCommands(cli *cli.Cli) {
 						return
 					}
 					submodules.LoopSubmodules(func(sub *git.Submodule) {
-						if err := FixLinks(sub.Config().Path, "package.json", args[0], args[1], false); err != nil {
+						if err := fixLinks(sub.Config().Path, "package.json", args[0], args[1], false); err != nil {
 							fmt.Println(err.Error())
 						} else {
 							fmt.Printf("- Link fixed: %s\n", sub.Config().Path)
@@ -47,7 +47,7 @@ func AddCommands(cli *cli.Cli) {
 						return
 					}
 					submodules.LoopSubmodules(func(sub *git.Submodule) {
-						if err := FixLinks(sub.Config().Path, "package.json", "", args[0], true); err != nil {
+						if err := fixLinks(sub.Config().Path, "package.json", "", args[0], true); err != nil {
 						} else {
 							fmt.Printf("- Removed in: %s\n", sub.Config().Path)
 						}
@@ -63,7 +63,7 @@ func AddCommands(cli *cli.Cli) {
 						return
 					}
 					submodules.LoopSubmodules(func(sub *git.Submodule) {
-						if _, err := HasPackage(sub.Config().Path, "package.json", args[0]); err != nil {
+						if _, err := hasPackage(sub.Config().Path, "package.json", args[0]); err != nil {
 						}
 					})
 				},

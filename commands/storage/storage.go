@@ -63,6 +63,7 @@ type Kubebuilder struct {
 type Github struct {
 	AccessToken  string  `json:"accesstoken"`
 	Issue        []Issue `json:"issue"`
+	Organisation string  `json:"SeedJobs"`
 	TeamID       int     `json:"teamid"`
 	CurrentIssue *Issue  `json:"currentissue"`
 }

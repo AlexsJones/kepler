@@ -23,7 +23,6 @@ func AddCommands(cli *cli.Cli) {
 				Help: "Deploy to a remote kubebuilder cluster",
 				Func: func(args []string) {
 
-					//--
 					out, err := loadKubebuilderFile()
 					if err != nil {
 						color.Red(err.Error())

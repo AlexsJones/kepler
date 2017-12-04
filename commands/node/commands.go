@@ -22,7 +22,7 @@ func recursePackages(p *PackageJSON, callback func(moduleName string, key string
 //This is a useful way of whether a repository uses a packages
 //It only requires package name without version
 //On success it returns a bool and nil error object
-func HasPackage(subPath string, filename string, target string) (bool, error) {
+func hasPackage(subPath string, filename string, target string) (bool, error) {
 
 	filepath := path.Join(subPath, filename)
 
@@ -49,7 +49,7 @@ func HasPackage(subPath string, filename string, target string) (bool, error) {
 
 //FixLinks will perform a regex like action within a package.json to alter the url or file path
 //It returns a nil error object on success
-func FixLinks(subPath string, filename string, prefix string, target string, shouldDelete bool) error {
+func fixLinks(subPath string, filename string, prefix string, target string, shouldDelete bool) error {
 
 	filepath := path.Join(subPath, filename)
 

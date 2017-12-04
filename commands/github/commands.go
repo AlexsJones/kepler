@@ -20,6 +20,7 @@ import (
 
 //Login function to github
 func Login() {
+	color.Blue("Logging into github...")
 	if storage.GetInstance().Github.AccessToken == "" {
 		fmt.Print("Access token: ")
 		reader := bufio.NewReader(os.Stdin)
@@ -45,7 +46,7 @@ func Login() {
 
 //CreateIssue creates an issue based on the selected repository
 //This will return on success an issue object that is stored in Kepler
-func CreateIssue(owner string, repo string, title string) error {
+func createIssue(owner string, repo string, title string) error {
 	var err error
 	fmt.Printf("Owner: %s\n", owner)
 	fmt.Printf("Repo: %s\n", repo)
@@ -76,7 +77,7 @@ func CreateIssue(owner string, repo string, title string) error {
 }
 
 //ShowIssue shows stored issues and highlights the current working issue if set
-func ShowIssue() error {
+func showIssue() error {
 
 	if len(storage.GetInstance().Github.Issue) == 0 {
 		return errors.New("No issue set")
@@ -114,7 +115,7 @@ func ShowIssue() error {
 }
 
 //UnsetIssue the working issue from storage if set
-func UnsetIssue() error {
+func unsetIssue() error {
 
 	if storage.GetInstance().Github.CurrentIssue == nil {
 		return errors.New("No issue to unset")
@@ -124,7 +125,7 @@ func UnsetIssue() error {
 }
 
 //SetIssue in storage using the issue index number
-func SetIssue(issueNumber int) error {
+func setIssue(issueNumber int) error {
 
 	if issueNumber > len(storage.GetInstance().Github.Issue) {
 		return errors.New("Out of bounds")
@@ -140,7 +141,7 @@ func SetIssue(issueNumber int) error {
 
 //CreatePR makes a new pull request with the given criteria
 //It returns an error object with nil on success
-func CreatePR(owner string, repo string, base string, head string, title string) error {
+func createPR(owner string, repo string, base string, head string, title string) error {
 
 	fmt.Printf("Owner: %s\n", owner)
 	fmt.Printf("Repo: %s\n", repo)
@@ -185,7 +186,7 @@ func CreatePR(owner string, repo string, base string, head string, title string)
 }
 
 //AttachIssuetoPr will use the current working issue to attach a new pull request too
-func AttachIssuetoPr(owner string, reponame string, number string) error {
+func attachIssuetoPr(owner string, reponame string, number string) error {
 
 	fmt.Printf("Owner: %s\n", owner)
 	fmt.Printf("Repo: %s\n", reponame)
@@ -221,7 +222,7 @@ func AttachIssuetoPr(owner string, reponame string, number string) error {
 }
 
 //FetchTeamRepos ...
-func FetchTeamRepos() error {
+func fetchTeamRepos() error {
 
 	var repoList = make(map[string]string)
 
@@ -257,7 +258,7 @@ func FetchTeamRepos() error {
 }
 
 //FetchRepos into the current working directory
-func FetchRepos() error {
+func fetchRepos() error {
 
 	var count = 0
 	var repoList = make(map[string]string)
@@ -298,6 +299,32 @@ func FetchRepos() error {
 			}
 			color.Green(fmt.Sprintf("Fetched %s\n", name))
 			time.Sleep(time.Second)
+		}
+	}
+	return nil
+}
+
+func setTeam(team string) error {
+	i, err := strconv.Atoi(team)
+	if err != nil {
+		color.Red(err.Error())
+		return err
+	}
+	storage.GetInstance().Github.TeamID = i
+	storage.GetInstance().Save()
+	return nil
+}
+func listTeams() error {
+	teams, _, err := GithubClient.Organizations.ListTeams(Ctx, "SeedJobs", &github.ListOptions{})
+	if err != nil {
+		return err
+	}
+	currentTeamID := storage.GetInstance().Github.TeamID
+	for _, t := range teams {
+		if currentTeamID != 0 && currentTeamID == t.GetID() {
+			fmt.Printf("Name: %s -- ID: %d [Currently set team]\n", t.GetName(), t.GetID())
+		} else {
+			fmt.Printf("Name: %s -- ID: %d\n", t.GetName(), t.GetID())
 		}
 	}
 	return nil
