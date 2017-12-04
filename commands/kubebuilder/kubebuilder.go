@@ -1,14 +1,12 @@
 package kubebuilder
 
 import (
-	"bufio"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/AlexsJones/cli/cli"
@@ -22,8 +20,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-var localStorage *storage.Storage
-
 //AddCommands for the kubebuilder module
 func AddCommands(cli *cli.Cli) {
 
@@ -35,54 +31,10 @@ func AddCommands(cli *cli.Cli) {
 		},
 		SubCommands: []command.Command{
 			command.Command{
-				Name: "setup",
-				Help: "Configure the initial settings for kubebuilder",
-				Func: func(args []string) {
-					b, err := storage.Exists()
-					if err != nil {
-						fmt.Println(err.Error())
-					}
-					if b {
-						//Load and save
-						localStorage, err = storage.Load()
-						if err != nil {
-							color.Red(err.Error())
-							return
-						}
-					} else {
-						fmt.Print("Please install gcloud and authenticate (gcloud auth login) [Y/N] to continue:")
-						reader := bufio.NewReader(os.Stdin)
-						token, _ := reader.ReadString('\n')
-						if strings.TrimSpace(token) == "Y" {
-
-							fmt.Print("Please provide project name (e.g. my-gcloud-project):")
-							reader := bufio.NewReader(os.Stdin)
-							token, _ := reader.ReadString('\n')
-							storage.GetInstance().Kubebuilder.ProjectName = strings.TrimSpace(token)
-
-							fmt.Print("Please provide pubsub topic (e.g.cadium):")
-							reader = bufio.NewReader(os.Stdin)
-							token, _ = reader.ReadString('\n')
-							storage.GetInstance().Kubebuilder.TopicName = strings.TrimSpace(token)
-
-							fmt.Print("Please provide pubsub subscription (e.g.cadium-sub):")
-							reader = bufio.NewReader(os.Stdin)
-							token, _ = reader.ReadString('\n')
-							storage.GetInstance().Kubebuilder.SubName = strings.TrimSpace(token)
-
-							storage.GetInstance().Save()
-						}
-					}
-					color.Green("Okay")
-				},
-			}, command.Command{
 				Name: "deploy",
 				Help: "Deploy to a remote kubebuilder cluster",
 				Func: func(args []string) {
-					if localStorage == nil {
-						fmt.Println("Please run the setup first...")
-						return
-					}
+
 					//--
 					out, err := loadKubebuilderFile()
 					if err != nil {
@@ -102,13 +54,22 @@ func AddCommands(cli *cli.Cli) {
 	},
 	)
 }
-
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
 func loadKubebuilderFile() (*data.BuildDefinition, error) {
 
-	if _, err := os.Stat(".kubebuilder"); os.IsNotExist(err) {
+	if _, err := exists(".kubebuilder"); os.IsNotExist(err) {
 		return nil, errors.New(".kubebuilder folder does not exist")
 	}
-	if _, err := os.Stat(".kubebuilder/build.yaml"); os.IsNotExist(err) {
+	if _, err := exists(".kubebuilder/build.yaml"); os.IsNotExist(err) {
 		return nil, errors.New(".kubebuilder folder does not exist")
 	}
 
@@ -137,9 +98,9 @@ func publishKubebuilderfile(build *data.BuildDefinition) error {
 	//Create the GCP Pubsub configuration
 	gconfig := gcloud.NewPubSubConfiguration()
 
-	gconfig.Topic = localStorage.Kubebuilder.TopicName
-	gconfig.ConnectionString = localStorage.Kubebuilder.ProjectName
-	gconfig.SubscriptionString = localStorage.Kubebuilder.SubName
+	gconfig.Topic = storage.GetInstance().Kubebuilder.TopicName
+	gconfig.ConnectionString = storage.GetInstance().Kubebuilder.ProjectName
+	gconfig.SubscriptionString = storage.GetInstance().Kubebuilder.SubName
 	if err := event.Connect(gpubsub, gconfig); err != nil {
 		return err
 	}

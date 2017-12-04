@@ -40,6 +40,64 @@ func AddCommands(cli *cli.Cli) {
 		},
 		SubCommands: []command.Command{
 			command.Command{
+				Name: "team",
+				Help: "team command palette",
+				Func: func(args []string) {
+					fmt.Println("See help for working with teams")
+				},
+				SubCommands: []command.Command{
+					command.Command{
+						Name: "list",
+						Help: "List team membership",
+						Func: func(args []string) {
+							if GithubClient == nil {
+								fmt.Println("Please login first...")
+								return
+							}
+
+							teams, _, err := GithubClient.Organizations.ListTeams(Ctx, "SeedJobs", &github.ListOptions{})
+							if err != nil {
+								color.Red(err.Error())
+								return
+							}
+							currentTeamID := storage.GetInstance().Github.TeamID
+							for _, t := range teams {
+								if currentTeamID != 0 && currentTeamID == t.GetID() {
+									fmt.Printf("Name: %s -- ID: %d [Currently set team]\n", t.GetName(), t.GetID())
+								} else {
+									fmt.Printf("Name: %s -- ID: %d\n", t.GetName(), t.GetID())
+								}
+							}
+							color.Green("Okay")
+						},
+					},
+					command.Command{
+						Name: "set",
+						Help: "Set the current team to work with",
+						Func: func(args []string) {
+							if GithubClient == nil {
+								fmt.Println("Please login first...")
+								return
+							}
+							if len(args) == 0 || len(args) < 1 {
+								fmt.Println("set the current team id to use <teamid>")
+								return
+							}
+							i, err := strconv.Atoi(args[0])
+							if err != nil {
+								color.Red(err.Error())
+								return
+							}
+							storage.GetInstance().Github.TeamID = i
+							storage.GetInstance().Save()
+
+							color.Green("Okay")
+						},
+					},
+				},
+			},
+
+			command.Command{
 				Name: "pr",
 				Help: "pr command palette",
 				Func: func(args []string) {
@@ -298,13 +356,14 @@ func AddCommands(cli *cli.Cli) {
 				Help: "use an access token to login to github",
 				Func: func(args []string) {
 
-					fmt.Print("Access token: ")
-					reader := bufio.NewReader(os.Stdin)
-					token, _ := reader.ReadString('\n')
-					log.Println("Creating new storage tooken...")
-					storage.GetInstance().Github.AccessToken = strings.TrimSpace(token)
-					storage.GetInstance().Save()
-
+					if storage.GetInstance().Github.AccessToken == "" {
+						fmt.Print("Access token: ")
+						reader := bufio.NewReader(os.Stdin)
+						token, _ := reader.ReadString('\n')
+						log.Println("Creating new storage token...")
+						storage.GetInstance().Github.AccessToken = strings.TrimSpace(token)
+						storage.GetInstance().Save()
+					}
 					Ctx = context.Background()
 					ts := oauth2.StaticTokenSource(
 						&oauth2.Token{AccessToken: storage.GetInstance().Github.AccessToken},
@@ -317,6 +376,7 @@ func AddCommands(cli *cli.Cli) {
 						color.Red(err.Error())
 						return
 					}
+
 					color.Green("Authentication Successful.")
 				},
 			},

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	p "path"
 	"sync"
@@ -63,6 +64,7 @@ type Kubebuilder struct {
 type Github struct {
 	AccessToken  string  `json:"accesstoken"`
 	Issue        []Issue `json:"issue"`
+	TeamID       int     `json:"teamid"`
 	CurrentIssue *Issue  `json:"currentissue"`
 }
 
@@ -92,9 +94,23 @@ var once sync.Once
 //GetInstance reference to the singleton
 func GetInstance() *Storage {
 	once.Do(func() {
-		instance = &Storage{}
-		instance.Github = &Github{}
-		instance.Kubebuilder = &Kubebuilder{}
+		doesExist, err := Exists()
+		if err != nil {
+			panic(err)
+		}
+		if doesExist != true {
+			instance = &Storage{}
+			instance.Github = &Github{TeamID: 0}
+			instance.Kubebuilder = &Kubebuilder{}
+			log.Println("Creating new storage object...")
+		} else {
+			i, err := Load()
+			if err != nil {
+				panic(err)
+			}
+			instance = i
+			log.Println("Using existing storage object...")
+		}
 	})
 	return instance
 }

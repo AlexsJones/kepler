@@ -48,7 +48,7 @@ kubernetes:
         spec:
           containers:
             - name: hello-go
-              image: us.gcr.io/beamery-trials/hello-go:latest
+              image: {{ .image }}
               imagePullPolicy: Always
               ports:
                 - containerPort: 9090
