@@ -242,14 +242,25 @@ func fetchTeamRepos() error {
 	fmt.Print("Fetch from remotes?(Y/N): ")
 	text, _ := reader.ReadString('\n')
 	if strings.Contains(text, "Y") {
-
+		_, er := os.Stat(".gitmodules")
+		isMetaRepo := !os.IsNotExist(er)
 		for name, repo := range repoList {
+			if _, er := os.Stat(name); !os.IsNotExist(er) {
+				color.Blue("Already have %s", name)
+				continue
+			}
+			var out []byte
 			fmt.Printf("Fetching %s\n", name)
-			out, err := exec.Command("git", "clone", fmt.Sprintf("%s", repo)).Output()
+			if isMetaRepo {
+				out, err = exec.Command("git", "submodule", "add", fmt.Sprintf("%s", repo)).Output()
+			} else {
+				out, err = exec.Command("git", "clone", fmt.Sprintf("%s", repo)).Output()
+			}
 			if err != nil {
 				color.Red(fmt.Sprintf("%s %s", string(out), err.Error()))
+			} else {
+				color.Green(fmt.Sprintf("Fetched %s\n", name))
 			}
-			color.Green(fmt.Sprintf("Fetched %s\n", name))
 			time.Sleep(time.Second)
 		}
 	}
