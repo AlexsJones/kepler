@@ -221,20 +221,8 @@ func attachIssuetoPr(owner string, reponame string, number string) error {
 	return nil
 }
 
-//FetchTeamRepos ...
-func fetchTeamRepos() error {
+func fetchRepoList(repoList map[string]string) error {
 
-	var repoList = make(map[string]string)
-
-	repos, _, err := GithubClient.Organizations.ListTeamRepos(Ctx, storage.GetInstance().Github.TeamID, &github.ListOptions{})
-	if err != nil {
-		return err
-	}
-	for _, repo := range repos {
-
-		repoList[repo.GetName()] = repo.GetSSHURL()
-
-	}
 	for k, v := range repoList {
 		fmt.Printf("%s -> %s\n", k, v)
 	}
@@ -250,6 +238,7 @@ func fetchTeamRepos() error {
 				continue
 			}
 			var out []byte
+			var err error
 			fmt.Printf("Fetching %s\n", name)
 			if isMetaRepo {
 				out, err = exec.Command("git", "submodule", "add", fmt.Sprintf("%s", repo)).Output()
@@ -264,8 +253,25 @@ func fetchTeamRepos() error {
 			time.Sleep(time.Second)
 		}
 	}
+	return nil
+}
 
-	return err
+//FetchTeamRepos ...
+func fetchTeamRepos() error {
+
+	var repoList = make(map[string]string)
+
+	repos, _, err := GithubClient.Organizations.ListTeamRepos(Ctx, storage.GetInstance().Github.TeamID, &github.ListOptions{})
+	if err != nil {
+		return err
+	}
+	for _, repo := range repos {
+
+		repoList[repo.GetName()] = repo.GetSSHURL()
+
+	}
+
+	return fetchRepoList(repoList)
 }
 
 //FetchRepos into the current working directory
@@ -293,26 +299,7 @@ func fetchRepos() error {
 			repoList[repo.GetName()] = repo.GetSSHURL()
 		}
 	}
-
-	for k, v := range repoList {
-		fmt.Printf("%s -> %s\n", k, v)
-	}
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Fetch from remotes?(Y/N): ")
-	text, _ := reader.ReadString('\n')
-	if strings.Contains(text, "Y") {
-
-		for name, repo := range repoList {
-			fmt.Printf("Fetching %s\n", name)
-			out, err := exec.Command("git", "clone", fmt.Sprintf("%s", repo)).Output()
-			if err != nil {
-				color.Red(fmt.Sprintf("%s %s", string(out), err.Error()))
-			}
-			color.Green(fmt.Sprintf("Fetched %s\n", name))
-			time.Sleep(time.Second)
-		}
-	}
-	return nil
+	return fetchRepoList(repoList)
 }
 
 func setTeam(team string) error {
