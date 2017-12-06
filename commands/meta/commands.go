@@ -36,6 +36,10 @@ func AddCommands(cli *cli.Cli) {
 								color.Red("Something bad happened: %s", err.Error())
 								return
 							}
+							if len(i.Projects) == 0 {
+								color.Red("There appears to be no happiness in the world")
+								return
+							}
 							for name := range i.Projects {
 								color.Blue("> %s", name)
 							}

@@ -67,13 +67,14 @@ func NewInformation() (*Information, error) {
 	if _, err := os.Stat(".gitmodules"); os.IsNotExist(err) {
 		return nil, errors.New("Can not create information about meta repo")
 	}
-	data := &Information{}
+	data := &Information{
+		Projects: make(map[string]*types.PackageJSON),
+	}
 	LoopSubmodules(func(sub *git.Submodule) {
 		filepath := path.Join(sub.Config().Path, "package.json")
-		if _, node := os.Stat(filepath); os.IsExist(node) {
+		if _, node := os.Stat(filepath); !os.IsNotExist(node) {
 			b, err := ioutil.ReadFile(filepath)
 			if err != nil {
-				fmt.Println("Things are not great")
 				return
 			}
 			var p *types.PackageJSON
