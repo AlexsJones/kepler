@@ -118,7 +118,7 @@ func ResolveLocalDependancies(project string) ([]string, error) {
 	if err != nil {
 		return []string{}, err
 	}
-	if _, exists := LocalPackages[project]; !exists {
+	if _, exist := LocalPackages[project]; !exist {
 		return nil, fmt.Errorf("%s does not exists", project)
 	}
 	ResolvedDeps := make(map[string]bool)
