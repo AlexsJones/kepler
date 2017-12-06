@@ -45,6 +45,29 @@ func AddCommands(cli *cli.Cli) {
 							}
 						},
 					},
+					command.Command{
+						Name: "local-deps",
+						Help: "Shows all the dependancies found locally",
+						Func: func(args []string) {
+							i, err := NewInformation()
+							if err != nil {
+								color.Red("Something bad has happened: %s", err.Error())
+								return
+							}
+							for _, project := range args {
+								deps, err := i.ResolveLocalDependancies(project)
+								if err != nil {
+									color.Red("The hell?!: %s", err.Error())
+								} else {
+									color.Cyan("> %s", project)
+									for _, dep := range deps {
+										color.Green("> %s", dep)
+									}
+								}
+
+							}
+						},
+					},
 				},
 			},
 		},

@@ -16,50 +16,13 @@ import (
 
 	git "gopkg.in/src-d/go-git.v4"
 
+	"github.com/AlexsJones/kepler/commands/submodules"
 	"github.com/Alexsjones/kepler/commands/types"
-	"github.com/fatih/color"
 )
 
 // Information ...
 type Information struct {
-	// projects, poor mans version of a set
 	Projects map[string]*types.PackageJSON
-}
-
-func loopSubmodules(path string, callback func(sub *git.Submodule) error) error {
-
-	r, err := git.PlainOpen(path)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-	worktree, err := r.Worktree()
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-	submodules, err := worktree.Submodules()
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-	for _, sub := range submodules {
-		callback(sub)
-	}
-	if len(submodules) == 0 {
-		color.Red("No submodules found")
-	}
-	return nil
-}
-
-//LoopSubmodules will run through all submodules in the current repository
-//It will return a nil error object on success
-func LoopSubmodules(callback func(sub *git.Submodule)) error {
-	loopSubmodules(".", func(sub *git.Submodule) error {
-		callback(sub)
-		return nil
-	})
-	return nil
 }
 
 // NewInformation creates a struct containing information about the meta repo
@@ -70,16 +33,16 @@ func NewInformation() (*Information, error) {
 	data := &Information{
 		Projects: make(map[string]*types.PackageJSON),
 	}
-	LoopSubmodules(func(sub *git.Submodule) {
+	submodules.LoopSubmodules(func(sub *git.Submodule) {
 		filepath := path.Join(sub.Config().Path, "package.json")
 		if _, node := os.Stat(filepath); !os.IsNotExist(node) {
 			b, err := ioutil.ReadFile(filepath)
 			if err != nil {
 				return
 			}
-			var p *types.PackageJSON
-			json.Unmarshal(b, p)
-			data.Projects[sub.Config().Name] = p
+			var p types.PackageJSON
+			json.Unmarshal(b, &p)
+			data.Projects[sub.Config().Name] = &p
 		}
 	})
 	return data, nil
@@ -90,7 +53,40 @@ func NewInformation() (*Information, error) {
 // pacakages otherwise, return an informative error
 func (meta *Information) ResolveLocalDependancies(project string) ([]string, error) {
 	if _, exists := meta.Projects[project]; !exists {
-		return nil, errors.New("The project does not exists")
+		return nil, fmt.Errorf("%s does not exists", project)
 	}
-	return []string{}, nil
+	ResolvedDeps := make(map[string]bool)
+	Explore := make(map[string]*types.PackageJSON)
+	Explore[project] = meta.Projects[project]
+	for len(Explore) > 0 {
+		for node, pack := range Explore {
+			for name := range pack.Dependencies {
+				if ResolvedDeps[name] {
+					// Nothing to do as its already been resolved
+					continue
+				}
+				if _, local := meta.Projects[name]; local {
+					Explore[name] = meta.Projects[name]
+				}
+			}
+			for name := range pack.DevDependencies {
+				if ResolvedDeps[name] {
+					// Nothing to do as its already been resolved
+					continue
+				}
+				if _, local := meta.Projects[name]; local {
+					Explore[name] = meta.Projects[name]
+				}
+			}
+			ResolvedDeps[node] = true
+			delete(Explore, node)
+		}
+	}
+	// Make sure we don't include ourselves when we print out
+	delete(ResolvedDeps, project)
+	deps := []string{}
+	for dep := range ResolvedDeps {
+		deps = append(deps, dep)
+	}
+	return deps, nil
 }
