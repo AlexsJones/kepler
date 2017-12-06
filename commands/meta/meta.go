@@ -56,7 +56,8 @@ func loopSubmodules(path string, callback func(sub *git.Submodule) error) error 
 //It will return a nil error object on success
 func LoopSubmodules(callback func(sub *git.Submodule)) error {
 	loopSubmodules(".", func(sub *git.Submodule) error {
-		return callback(sub)
+		callback(sub)
+		return nil
 	})
 	return nil
 }

@@ -3,8 +3,8 @@ package meta
 import (
 	"fmt"
 
-	"github.com/Alexsjones/cli/cli"
-	"github.com/Alexsjones/cli/command"
+	"github.com/AlexsJones/cli/cli"
+	"github.com/AlexsJones/cli/command"
 	"github.com/fatih/color"
 )
 
