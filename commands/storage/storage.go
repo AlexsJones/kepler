@@ -128,10 +128,8 @@ func Exists() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if _, err := os.Stat(pout); os.IsNotExist(err) {
-		return false, nil
-	}
-	return true, nil
+	_, err = os.Stat(pout)
+	return !os.IsNotExist(err), nil
 }
 
 //Save to kepler storage
