@@ -8,7 +8,7 @@ import (
 	"github.com/fatih/color"
 )
 
-//AddCommands for the submodule module
+//AddCommands for the Meta module
 func AddCommands(cli *cli.Cli) {
 	cli.AddCommand(command.Command{
 		Name: "meta",
@@ -22,7 +22,7 @@ func AddCommands(cli *cli.Cli) {
 				Help: "observe all the wonderful commands we have for you today",
 				Func: func(args []string) {
 					if len(args) < 1 {
-						fmt.Println("See help for working with branch")
+						fmt.Println("See help for working with meta node")
 						return
 					}
 				},
