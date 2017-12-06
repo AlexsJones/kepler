@@ -57,6 +57,9 @@ func (meta *Information) ResolveLocalDependancies(project string) ([]string, err
 	}
 	ResolvedDeps := make(map[string]bool)
 	Explore := make(map[string]*Node.PackageJSON)
+	// Making sure we don't try to explore the started node
+	// if it is required by another project
+	ResolvedDeps[project] = true
 	Explore[project] = meta.Projects[project]
 	for len(Explore) > 0 {
 		for node, pack := range Explore {
