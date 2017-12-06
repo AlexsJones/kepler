@@ -92,7 +92,7 @@ func fixLinks(subPath string, filename string, prefix string, target string, sho
 	return ioutil.WriteFile(filepath, o, 0644)
 }
 
-// NewInformation creates a struct containing information about the meta repo
+// LocalNodeModules creates a struct containing information about the meta repo
 func LocalNodeModules() (map[string]*PackageJSON, error) {
 	Projects := make(map[string]*PackageJSON)
 	submodules.LoopSubmodules(func(sub *git.Submodule) {
@@ -158,4 +158,26 @@ func ResolveLocalDependancies(project string) ([]string, error) {
 		deps = append(deps, dep)
 	}
 	return deps, nil
+}
+
+func LinkLocalDeps() error {
+	local, err := LocalNodeModules()
+	if err != nil {
+		return err
+	}
+	for _, pack := range local {
+		// Need to create a backup file
+		for name := range pack.Dependencies {
+			if _, exist := local[name]; exist {
+				pack.Dependencies[name] = fmt.Sprintf("file:%s", name)
+			}
+		}
+		for name := range pack.DevDependencies {
+			if _, exist := local[name]; exist {
+				pack.DevDependencies[name] = fmt.Sprintf("file:%s", name)
+			}
+		}
+		// Write new package json to disk
+	}
+	return nil
 }
