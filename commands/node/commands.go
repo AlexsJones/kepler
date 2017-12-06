@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/Alexsjones/kepler/commands/submodules"
+	"github.com/AlexsJones/kepler/commands/submodules"
 
 	git "gopkg.in/src-d/go-git.v4"
 )
@@ -102,12 +102,12 @@ func LocalNodeModules() (map[string]*PackageJSON, error) {
 			if err != nil {
 				return
 			}
-			var p Node.PackageJSON
+			var p PackageJSON
 			json.Unmarshal(b, &p)
 			Projects[sub.Config().Name] = &p
 		}
 	})
-	return projects, nil
+	return Projects, nil
 }
 
 // ResolveLocalDependancies will explore (via some graph expansion)
