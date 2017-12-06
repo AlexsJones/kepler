@@ -105,6 +105,15 @@ func AddCommands(cli *cli.Cli) {
 					}
 				},
 			},
+			command.Command{
+				Name: "link",
+				Help: "Force all local node projects to use local projects",
+				Func: func(args []string) {
+					if err := LinkLocalDeps(); err != nil {
+						color.Red("Appears an error occured: %s", err.Error())
+					}
+				},
+			},
 		},
 	})
 }
