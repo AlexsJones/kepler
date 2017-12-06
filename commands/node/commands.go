@@ -7,6 +7,10 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"github.com/Alexsjones/kepler/commands/submodules"
+
+	git "gopkg.in/src-d/go-git.v4"
 )
 
 func recursePackages(p *PackageJSON, callback func(moduleName string, key string, value string)) error {
@@ -86,5 +90,72 @@ func fixLinks(subPath string, filename string, prefix string, target string, sho
 	o = append(o, []byte("\n")...)
 
 	return ioutil.WriteFile(filepath, o, 0644)
+}
 
+// NewInformation creates a struct containing information about the meta repo
+func LocalNodeModules() (map[string]*PackageJSON, error) {
+	Projects := make(map[string]*PackageJSON)
+	submodules.LoopSubmodules(func(sub *git.Submodule) {
+		filepath := path.Join(sub.Config().Path, "package.json")
+		if _, node := os.Stat(filepath); !os.IsNotExist(node) {
+			b, err := ioutil.ReadFile(filepath)
+			if err != nil {
+				return
+			}
+			var p Node.PackageJSON
+			json.Unmarshal(b, &p)
+			Projects[sub.Config().Name] = &p
+		}
+	})
+	return projects, nil
+}
+
+// ResolveLocalDependancies will explore (via some graph expansion)
+// once it is completed, it will return the list of the required
+// pacakages otherwise, return an informative error
+func ResolveLocalDependancies(project string) ([]string, error) {
+	LocalPackages, err := LocalNodeModules()
+	if err != nil {
+		return []string{}, err
+	}
+	if _, exists := LocalPackages[project]; !exists {
+		return nil, fmt.Errorf("%s does not exists", project)
+	}
+	ResolvedDeps := make(map[string]bool)
+	Explore := make(map[string]*PackageJSON)
+	// Making sure we don't try to explore the started node
+	// if it is required by another project
+	ResolvedDeps[project] = true
+	Explore[project] = LocalPackages[project]
+	for len(Explore) > 0 {
+		for node, pack := range Explore {
+			for name := range pack.Dependencies {
+				if ResolvedDeps[name] {
+					// Nothing to do as its already been resolved
+					continue
+				}
+				if _, local := LocalPackages[name]; local {
+					Explore[name] = LocalPackages[name]
+				}
+			}
+			for name := range pack.DevDependencies {
+				if ResolvedDeps[name] {
+					// Nothing to do as its already been resolved
+					continue
+				}
+				if _, local := LocalPackages[name]; local {
+					Explore[name] = LocalPackages[name]
+				}
+			}
+			ResolvedDeps[node] = true
+			delete(Explore, node)
+		}
+	}
+	// Make sure we don't include ourselves when we print out
+	delete(ResolvedDeps, project)
+	deps := []string{}
+	for dep := range ResolvedDeps {
+		deps = append(deps, dep)
+	}
+	return deps, nil
 }
