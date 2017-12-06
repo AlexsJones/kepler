@@ -14,6 +14,7 @@ import (
 	"github.com/AlexsJones/kepler/commands/palette"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kepler/commands/submodules"
+	"github.com/Alexsjones/kepler/commands/meta"
 	"github.com/dimiro1/banner"
 )
 
@@ -40,6 +41,7 @@ func main() {
 	submodules.AddCommands(cli)
 	storage.AddCommands(cli)
 	palette.AddCommands(cli)
+	meta.AddCommands(cli)
 	//-------------------------------------------
 	//Additional commands
 	github.Login()

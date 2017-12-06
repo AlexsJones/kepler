@@ -7,9 +7,11 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"github.com/Alexsjones/kepler/commands/types"
 )
 
-func recursePackages(p *PackageJSON, callback func(moduleName string, key string, value string)) error {
+func recursePackages(p *types.PackageJSON, callback func(moduleName string, key string, value string)) error {
 
 	for key, value := range p.Dependencies {
 
@@ -33,7 +35,7 @@ func hasPackage(subPath string, filename string, target string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	var packagejson PackageJSON
+	var packagejson types.PackageJSON
 	json.Unmarshal(b, &packagejson)
 
 	var wasFound = false
@@ -60,7 +62,7 @@ func fixLinks(subPath string, filename string, prefix string, target string, sho
 	if err != nil {
 		return err
 	}
-	var packagejson PackageJSON
+	var packagejson types.PackageJSON
 	json.Unmarshal(b, &packagejson)
 
 	//processing
