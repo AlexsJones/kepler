@@ -8,6 +8,7 @@ import (
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
 	"github.com/AlexsJones/kepler/commands/submodules"
+	"github.com/fatih/color"
 	"gopkg.in/src-d/go-git.v4"
 )
 
@@ -15,8 +16,8 @@ import (
 func AddCommands(cli *cli.Cli) {
 
 	cli.AddCommand(command.Command{
-		Name: "npm",
-		Help: "npm command palette",
+		Name: "node",
+		Help: "node command palette",
 		Func: func(args []string) {
 			fmt.Println("See help for working with npm")
 		},
@@ -68,9 +69,44 @@ func AddCommands(cli *cli.Cli) {
 					})
 				},
 			},
+			command.Command{
+				Name: "view",
+				Help: "View all the node projects that can be found locally",
+				Func: func(args []string) {
+					i, err := LocalNodeModules()
+					if err != nil {
+						color.Red("Something bad happened: %s", err.Error())
+						return
+					}
+					if len(i) == 0 {
+						color.Red("There appears to be no happiness in the world")
+						return
+					}
+					for name := range i {
+						color.Blue("> %s", name)
+					}
+				},
+			},
+			command.Command{
+				Name: "local-deps",
+				Help: "Shows all the dependancies found locally",
+				Func: func(args []string) {
+					for _, project := range args {
+						deps, err := ResolveLocalDependancies(project)
+						if err != nil {
+							color.Red("The hell?!: %s", err.Error())
+						} else {
+							color.Cyan("> %s", project)
+							for _, dep := range deps {
+								color.Green("> %s", dep)
+							}
+						}
+
+					}
+				},
+			},
 		},
 	})
-
 }
 
 //PackageJSON structure of package.json

@@ -44,7 +44,7 @@ func AddCommands(cli *cli.Cli) {
 	})
 }
 
-var store = ".kepler"
+const store = ".kepler"
 
 //Storage structure
 type Storage struct {
@@ -96,6 +96,7 @@ func GetInstance() *Storage {
 	once.Do(func() {
 		doesExist, err := Exists()
 		if err != nil {
+			fmt.Println(err)
 			panic(err)
 		}
 		if doesExist != true {
@@ -127,10 +128,8 @@ func Exists() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if _, err := os.Stat(pout); os.IsNotExist(err) {
-		return false, err
-	}
-	return true, nil
+	_, err = os.Stat(pout)
+	return !os.IsNotExist(err), nil
 }
 
 //Save to kepler storage
