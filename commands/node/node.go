@@ -71,7 +71,7 @@ func AddCommands(cli *cli.Cli) {
 			},
 			command.Command{
 				Name: "view",
-				Help: "View all the node projects inside the node repo",
+				Help: "View all the node projects that can be found locally",
 				Func: func(args []string) {
 					i, err := LocalNodeModules()
 					if err != nil {
