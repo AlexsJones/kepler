@@ -16,13 +16,13 @@ import (
 
 	git "gopkg.in/src-d/go-git.v4"
 
+	Node "github.com/AlexsJones/kepler/commands/node"
 	"github.com/AlexsJones/kepler/commands/submodules"
-	"github.com/Alexsjones/kepler/commands/types"
 )
 
 // Information ...
 type Information struct {
-	Projects map[string]*types.PackageJSON
+	Projects map[string]*Node.PackageJSON
 }
 
 // NewInformation creates a struct containing information about the meta repo
@@ -31,7 +31,7 @@ func NewInformation() (*Information, error) {
 		return nil, errors.New("Can not create information about meta repo")
 	}
 	data := &Information{
-		Projects: make(map[string]*types.PackageJSON),
+		Projects: make(map[string]*Node.PackageJSON),
 	}
 	submodules.LoopSubmodules(func(sub *git.Submodule) {
 		filepath := path.Join(sub.Config().Path, "package.json")
@@ -40,7 +40,7 @@ func NewInformation() (*Information, error) {
 			if err != nil {
 				return
 			}
-			var p types.PackageJSON
+			var p Node.PackageJSON
 			json.Unmarshal(b, &p)
 			data.Projects[sub.Config().Name] = &p
 		}
@@ -56,7 +56,7 @@ func (meta *Information) ResolveLocalDependancies(project string) ([]string, err
 		return nil, fmt.Errorf("%s does not exists", project)
 	}
 	ResolvedDeps := make(map[string]bool)
-	Explore := make(map[string]*types.PackageJSON)
+	Explore := make(map[string]*Node.PackageJSON)
 	Explore[project] = meta.Projects[project]
 	for len(Explore) > 0 {
 		for node, pack := range Explore {
