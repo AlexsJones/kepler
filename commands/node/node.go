@@ -137,6 +137,7 @@ func AddCommands(cli *cli.Cli) {
 					}
 					color.Yellow("Attempting to install")
 					sh.ShellCommand("npm i", "", true)
+					color.Yellow("Restoring backups")
 					if err := RestoreBackups(); err != nil {
 						color.Red("Failed to restore backups, %s", err.Error())
 					}
