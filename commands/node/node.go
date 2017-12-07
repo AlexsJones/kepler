@@ -114,6 +114,15 @@ func AddCommands(cli *cli.Cli) {
 					}
 				},
 			},
+			command.Command{
+				Name: "restore",
+				Help: "Restores all backup files to the original",
+				Func: func(args []string) {
+					if err := RestoreBackups(); err != nil {
+						color.Red("Something bad has occured: %s", err.Error())
+					}
+				},
+			},
 		},
 	})
 }

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/AlexsJones/kepler/commands/submodules"
+	"github.com/MovieStoreGuy/resources/files"
 	"github.com/fatih/color"
 
 	git "gopkg.in/src-d/go-git.v4"
@@ -170,17 +171,11 @@ func LinkLocalDeps() error {
 		// Need to create a backup file
 		filepath := path.Join(dir, "package.json.bak")
 		if _, err = os.Stat(filepath); !os.IsNotExist(err) {
-			color.Red("Found a backup file %s", filepath)
+			color.Red("%s already exists", filepath)
 			continue
 		}
-		o, err := json.MarshalIndent(pack, "", "    ")
-		if err != nil {
-			return err
-		}
-		o = append(o, []byte("\n")...)
-		if err = ioutil.WriteFile(filepath, o, 0644); err != nil {
-			color.Red("Failed to write backup %s", filepath)
-			return err
+		if err = files.Copy(path.Join(dir, "package.json"), filepath); err != nil {
+			color.Red("Failed to create %s", filepath)
 		}
 		color.Blue("Updating %s links", dir)
 		for name := range pack.Dependencies {
@@ -195,7 +190,7 @@ func LinkLocalDeps() error {
 		}
 		// Write new package json to disk
 		filepath = path.Join(dir, "package.json")
-		o, err = json.MarshalIndent(pack, "", "    ")
+		o, err := json.MarshalIndent(pack, "", "    ")
 		if err != nil {
 			return err
 		}
@@ -203,6 +198,26 @@ func LinkLocalDeps() error {
 		if err = ioutil.WriteFile(filepath, o, 0644); err != nil {
 			color.Red("Failed to write linked %s", filepath)
 			return err
+		}
+	}
+	return nil
+}
+
+func RestoreBackups() error {
+	local, err := LocalNodeModules()
+	if err != nil {
+		return err
+	}
+	for name := range local {
+		filepath := path.Join(name, "package.json.bak")
+		if _, err = os.Stat(filepath); !os.IsNotExist(err) {
+			if err = files.Copy(filepath, path.Join(name, "package.json")); err != nil {
+				return err
+			}
+			// Need to remove the packup file
+			if err = os.Remove(filepath); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
