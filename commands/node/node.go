@@ -3,10 +3,13 @@
 package node
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
+	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/submodules"
 	"github.com/fatih/color"
 	"gopkg.in/src-d/go-git.v4"
@@ -120,6 +123,44 @@ func AddCommands(cli *cli.Cli) {
 				Func: func(args []string) {
 					if err := RestoreBackups(); err != nil {
 						color.Red("Something bad has occured: %s", err.Error())
+					}
+				},
+			},
+			command.Command{
+				Name: "install",
+				Help: "Installs all the required vendor code",
+				Func: func(args []string) {
+					color.Yellow("Attempting to link packages")
+					if err := LinkLocalDeps(); err != nil {
+						color.Red("Failed to link: %s", err.Error())
+						return
+					}
+					color.Yellow("Attempting to install")
+					sh.ShellCommand("npm i", "", true)
+					if err := RestoreBackups(); err != nil {
+						color.Red("Failed to restore backups, %s", err.Error())
+					}
+				},
+			},
+			command.Command{
+				Name: "package",
+				Help: "Create the package json for a meta repo",
+				Func: func(args []string) {
+					pack, err := CreateMetaPackageJson()
+					if err != nil {
+						color.Red("Failed to generate meta package json, %s", err.Error())
+						return
+					}
+					// Write new package json to disk
+					filepath := "package.json"
+					o, err := json.MarshalIndent(pack, "", "    ")
+					if err != nil {
+						color.Red("An error occured, %s", err.Error())
+						return
+					}
+					o = append(o, []byte("\n")...)
+					if err = ioutil.WriteFile(filepath, o, 0644); err != nil {
+						color.Red("Failed to write linked %s", filepath)
 					}
 				},
 			},

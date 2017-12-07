@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/AlexsJones/kepler/commands/submodules"
@@ -221,4 +222,31 @@ func RestoreBackups() error {
 		}
 	}
 	return nil
+}
+
+func CreateMetaPackageJson() (*PackageJSON, error) {
+	metaPackage := &PackageJSON{
+		Version:         "1.0.0",
+		Description:     "An auto generated package json",
+		Main:            "index.js",
+		Author:          os.Args[0],
+		Dependencies:    map[string]string{},
+		DevDependencies: map[string]string{},
+		Scripts: map[string]string{
+			"test": "true",
+		},
+	}
+	if name, err := os.Getwd(); err != nil {
+		return nil, err
+	} else {
+		metaPackage.Name = filepath.Base(name)
+	}
+	modules, err := LocalNodeModules()
+	if err != nil {
+		return nil, err
+	}
+	for name := range modules {
+		metaPackage.Dependencies[name] = fmt.Sprintf("file:%s", name)
+	}
+	return metaPackage, nil
 }
