@@ -191,6 +191,9 @@ func LinkLocalDeps() error {
 		}
 		// Write new package json to disk
 		filepath = path.Join(dir, "package.json")
+		if err := os.Remove(filepath); err != nil {
+			return err
+		}
 		o, err := json.MarshalIndent(pack, "", "    ")
 		if err != nil {
 			return err
