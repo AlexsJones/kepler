@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"strings"
@@ -38,7 +39,9 @@ func hasPackage(subPath string, filename string, target string) (bool, error) {
 		return false, err
 	}
 	var packagejson PackageJSON
-	json.Unmarshal(b, &packagejson)
+	if err := json.Unmarshal(b, &packagejson); err != nil {
+		return false, err
+	}
 
 	var wasFound = false
 	recursePackages(&packagejson, func(moduleName string, key string, value string) {
@@ -65,7 +68,9 @@ func fixLinks(subPath string, filename string, prefix string, target string, sho
 		return err
 	}
 	var packagejson PackageJSON
-	json.Unmarshal(b, &packagejson)
+	if err = json.Unmarshal(b, &packagejson); err != nil {
+		return err
+	}
 
 	//processing
 	recursePackages(&packagejson, func(moduleName string, key string, value string) {
@@ -92,7 +97,7 @@ func fixLinks(subPath string, filename string, prefix string, target string, sho
 	return ioutil.WriteFile(filepath, o, 0644)
 }
 
-// NewInformation creates a struct containing information about the meta repo
+// LocalNodeModules ...
 func LocalNodeModules() (map[string]*PackageJSON, error) {
 	Projects := make(map[string]*PackageJSON)
 	submodules.LoopSubmodules(func(sub *git.Submodule) {
@@ -104,6 +109,9 @@ func LocalNodeModules() (map[string]*PackageJSON, error) {
 			}
 			var p PackageJSON
 			json.Unmarshal(b, &p)
+			if err := json.Unmarshal(b, &p); err != nil {
+				log.Println(err.Error())
+			}
 			Projects[sub.Config().Name] = &p
 		}
 	})

@@ -3,6 +3,7 @@ package storage
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -123,10 +124,19 @@ func path() (string, error) {
 }
 
 //Exists checks if .kepler file has been set
-func Exists() (bool, error) {
-	pout, err := path()
-	if err != nil {
-		return false, err
+func Exists(override ...string) (bool, error) {
+	var pout string
+	var err error
+	if len(override) > 0 {
+		if override[0] == "" {
+			return false, errors.New("No override path set")
+		}
+		pout = override[0]
+	} else {
+		pout, err = path()
+		if err != nil {
+			return false, err
+		}
 	}
 	_, err = os.Stat(pout)
 	return !os.IsNotExist(err), nil
