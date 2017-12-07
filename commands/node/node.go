@@ -82,7 +82,7 @@ func AddCommands(cli *cli.Cli) {
 						return
 					}
 					if len(i) == 0 {
-						color.Red("There appears to be no happiness in the world")
+						color.Red("No submodules found")
 						return
 					}
 					for name := range i {
