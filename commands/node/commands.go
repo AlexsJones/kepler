@@ -11,6 +11,7 @@ import (
 
 	"github.com/AlexsJones/kepler/commands/submodules"
 	"github.com/MovieStoreGuy/resources/files"
+	"github.com/MovieStoreGuy/resources/marshal"
 	"github.com/fatih/color"
 
 	git "gopkg.in/src-d/go-git.v4"
@@ -194,7 +195,7 @@ func LinkLocalDeps() error {
 		if err := os.Remove(filepath); err != nil {
 			return err
 		}
-		o, err := json.MarshalIndent(pack, "", "    ")
+		o, err := marshal.PureMarshalIndent(pack, "", "    ")
 		if err != nil {
 			return err
 		}
