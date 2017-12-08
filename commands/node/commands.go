@@ -112,9 +112,9 @@ func LocalNodeModules() (map[string]*PackageJSON, error) {
 				return
 			}
 			var p PackageJSON
-			json.Unmarshal(b, &p)
 			if err := json.Unmarshal(b, &p); err != nil {
 				log.Println(err.Error())
+				return
 			}
 			Projects[sub.Config().Name] = &p
 		}

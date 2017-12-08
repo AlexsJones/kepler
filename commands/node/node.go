@@ -3,7 +3,6 @@
 package node
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/AlexsJones/cli/command"
 	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/submodules"
+	"github.com/MovieStoreGuy/resources/marshal"
 	"github.com/fatih/color"
 	"gopkg.in/src-d/go-git.v4"
 )
@@ -25,23 +25,6 @@ func AddCommands(cli *cli.Cli) {
 			fmt.Println("See help for working with npm")
 		},
 		SubCommands: []command.Command{
-			command.Command{
-				Name: "file",
-				Help: "relink an npm package locally<prefix> <string>",
-				Func: func(args []string) {
-					if len(args) < 2 {
-						fmt.Println("Please give a target package string to try to convert to a file link <prefix> <string> e.g. file ../../ googleremotes.git")
-						return
-					}
-					submodules.LoopSubmodules(func(sub *git.Submodule) {
-						if err := fixLinks(sub.Config().Path, "package.json", args[0], args[1], false); err != nil {
-							fmt.Println(err.Error())
-						} else {
-							fmt.Printf("- Link fixed: %s\n", sub.Config().Path)
-						}
-					})
-				},
-			},
 			command.Command{
 				Name: "remove",
 				Help: "remove a dep from package.json <string>",
@@ -154,7 +137,7 @@ func AddCommands(cli *cli.Cli) {
 					}
 					// Write new package json to disk
 					filepath := "package.json"
-					o, err := json.MarshalIndent(pack, "", "    ")
+					o, err := marshal.PureMarshalIndent(pack, "", "    ")
 					if err != nil {
 						color.Red("An error occured, %s", err.Error())
 						return
@@ -176,9 +159,11 @@ type PackageJSON struct {
 	Description     string            `json:"description"`
 	Main            string            `json:"main"`
 	Author          string            `json:"author,omitempty"`
+	Bugs            map[string]string `json:"bugs,omitempty"`
 	Scripts         map[string]string `json:"scripts,omitempty"`
 	Dependencies    map[string]string `json:"dependencies,omitempty"`
 	DevDependencies map[string]string `json:"devDependencies,omitempty"`
+	Repository      map[string]string `json:"repository,omitempty"`
 	Private         bool              `json:"private,omitempty"`
 	License         string            `json:"license,omitempty"`
 }
