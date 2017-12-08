@@ -44,3 +44,23 @@ func CreateDockerfile(application string) ([]byte, error) {
 	t.Execute(dockerfile, resources)
 	return dockerfile.Bytes(), nil
 }
+
+func BuildImage(application string) (err error) {
+	_, err = CreateDockerfile(application)
+	if err != nil {
+		return err
+	}
+	// cli, err := client.NewEnvClient()
+	// if err != nil {
+	// 	return err
+	// }
+	// _, err := cli.ImageBuild(context.Background(), dockerfile, types.ImageBuildOptions{
+	// 	Tags:       []string{application},
+	// 	NoCache:    true,
+	// 	PullParent: true,
+	// })
+	// if err != nil {
+	// 	return err
+	// }
+	return nil
+}

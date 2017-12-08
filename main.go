@@ -44,7 +44,10 @@ func main() {
 	docker.AddCommands(cli)
 	//-------------------------------------------
 	//Additional commands
-	github.Login()
+	// Only automatically login if there is AccessToken set
+	if store := storage.GetInstance(); store.Github.AccessToken != "" {
+		github.Login()
+	}
 	//-------------------------------------------
 	cli.Run()
 }
