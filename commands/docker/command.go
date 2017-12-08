@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/AlexsJones/kepler/commands/node"
+	sh "github.com/AlexsJones/kepler/commands/shell"
 )
 
 type Resources struct {
@@ -16,7 +17,10 @@ type Resources struct {
 	Resources   []string
 }
 
-var TemplateDirectory string
+var (
+	TemplateDirectory string
+	BuildArgs         string
+)
 
 func init() {
 	TemplateDirectory = "templates"
@@ -46,21 +50,13 @@ func CreateDockerfile(application string) ([]byte, error) {
 }
 
 func BuildImage(application string) (err error) {
-	_, err = CreateDockerfile(application)
+	b, err := CreateDockerfile(application)
 	if err != nil {
 		return err
 	}
-	// cli, err := client.NewEnvClient()
-	// if err != nil {
-	// 	return err
-	// }
-	// _, err := cli.ImageBuild(context.Background(), dockerfile, types.ImageBuildOptions{
-	// 	Tags:       []string{application},
-	// 	NoCache:    true,
-	// 	PullParent: true,
-	// })
-	// if err != nil {
-	// 	return err
-	// }
+	if err = ioutil.WriteFile("Dockerfile", b, 0644); err != nil {
+		return err
+	}
+	sh.ShellCommand(fmt.Sprintf("docker build -t %s %s .", application, BuildArgs), "", true)
 	return nil
 }

@@ -32,13 +32,12 @@ func ShellCommand(command string, path string, validated bool) {
 			fmt.Printf("%s\n", errScanner.Text())
 		}
 	}()
-	err := cmd.Start()
-	if err != nil {
+	if err := cmd.Start(); err != nil {
+		fmt.Println(err.Error())
+	}
+	if err := cmd.Wait(); err != nil {
 		fmt.Println(err.Error())
 	} else {
-		if validated {
-			color.Green("[%s]OK\n", path)
-		}
+		color.Green("Successful")
 	}
-
 }
