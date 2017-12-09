@@ -92,24 +92,6 @@ func AddCommands(cli *cli.Cli) {
 				},
 			},
 			command.Command{
-				Name: "link",
-				Help: "Force all local node projects to use local projects",
-				Func: func(args []string) {
-					if err := LinkLocalDeps(); err != nil {
-						color.Red("Appears an error occured: %s", err.Error())
-					}
-				},
-			},
-			command.Command{
-				Name: "restore",
-				Help: "Restores all backup files to the original",
-				Func: func(args []string) {
-					if err := RestoreBackups(); err != nil {
-						color.Red("Something bad has occured: %s", err.Error())
-					}
-				},
-			},
-			command.Command{
 				Name: "install",
 				Help: "Installs all the required vendor code",
 				Func: func(args []string) {
@@ -127,7 +109,7 @@ func AddCommands(cli *cli.Cli) {
 				},
 			},
 			command.Command{
-				Name: "package",
+				Name: "init",
 				Help: "Create the package json for a meta repo",
 				Func: func(args []string) {
 					pack, err := CreateMetaPackageJson()
