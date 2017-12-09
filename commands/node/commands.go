@@ -241,7 +241,6 @@ func CreateMetaPackageJson() (*PackageJSON, error) {
 		Version:         "1.0.0",
 		Description:     "An auto generated package json",
 		Main:            "index.js",
-		Author:          os.Args[0],
 		Dependencies:    map[string]string{},
 		DevDependencies: map[string]string{},
 		Scripts: map[string]string{

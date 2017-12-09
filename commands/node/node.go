@@ -140,12 +140,10 @@ type PackageJSON struct {
 	Version         string            `json:"version"`
 	Description     string            `json:"description"`
 	Main            string            `json:"main"`
-	Author          string            `json:"author,omitempty"`
 	Bugs            map[string]string `json:"bugs,omitempty"`
 	Scripts         map[string]string `json:"scripts,omitempty"`
 	Dependencies    map[string]string `json:"dependencies,omitempty"`
 	DevDependencies map[string]string `json:"devDependencies,omitempty"`
-	Repository      map[string]string `json:"repository,omitempty"`
 	Private         bool              `json:"private,omitempty"`
 	License         string            `json:"license,omitempty"`
 }
