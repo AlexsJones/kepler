@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/submodules"
 	"github.com/MovieStoreGuy/resources/files"
 	"github.com/MovieStoreGuy/resources/marshal"
@@ -223,14 +224,9 @@ func RestoreBackups() error {
 	}
 	for name := range local {
 		filepath := path.Join(name, "package.json.bak")
+		os.Remove(filepath)
 		if _, err = os.Stat(filepath); !os.IsNotExist(err) {
-			if err = files.Copy(filepath, path.Join(name, "package.json")); err != nil {
-				return err
-			}
-			// Need to remove the packup file
-			if err = os.Remove(filepath); err != nil {
-				return err
-			}
+			sh.ShellCommand("git checkout HEAD -- package.json", name, false)
 		}
 	}
 	return nil
