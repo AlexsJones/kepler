@@ -81,9 +81,6 @@ func (conf *Config) prepareTemplate() ([]byte, error) {
 		} else {
 			conf.Resources = deps
 		}
-	case "noresolution":
-	default:
-		conf.Resources = []string{}
 	}
 	t := template.Must(template.New("Dockerfile").Parse(string(conf.Template)))
 	dockerfile := &bytes.Buffer{}
