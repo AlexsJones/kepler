@@ -13,25 +13,15 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-type ResolutionType int
+var Resolvers map[string]func(string) ([]string, error)
 
-const (
-	NoResolution = iota
-	Node
-)
-
-// resolver is declared to use in printing out
-var resolver = []string{
-	"NoResolution",
-	"Node",
-}
-
-// String returns a human readable version of the ResolutionType
-func (res ResolutionType) String() string {
-	if int(res) > len(resolver) {
-		return "Undefined ResolutionType"
+func init() {
+	Resolvers = map[string]func(string) ([]string, error){
+		"node": node.Resolve,
+		"noresolution": func(empty string) ([]string, error) {
+			return []string{}, nil
+		},
 	}
-	return resolver[res]
 }
 
 // Config contains all the required information
@@ -46,6 +36,10 @@ type Config struct {
 	Template  []byte
 }
 
+// CreateConfig loads the config defined in `ProjectDir/.kepler/config.yaml`
+// and prepares the Dockerfile template defined in `ProjectDir/.kepler/Dockerfile`
+// On success, it will return a struct with all the required information
+// Otherwise, review the returned error message
 func CreateConfig(ProjectDir string) (*Config, error) {
 	conf := path.Join(ProjectDir, ".kepler/config.yaml")
 	if _, err := os.Stat(conf); os.IsNotExist(err) {
@@ -74,13 +68,14 @@ func CreateConfig(ProjectDir string) (*Config, error) {
 }
 
 func (conf *Config) prepareTemplate() ([]byte, error) {
-	switch strings.ToLower(conf.Type) {
-	case "node":
-		if deps, err := node.ResolveLocalDependancies(conf.Application); err != nil {
-			return nil, err
-		} else {
-			conf.Resources = deps
-		}
+	resolverType := strings.ToLower(conf.Type)
+	if _, exist := Resolvers[resolverType]; !exist {
+		return nil, fmt.Errorf("Undefined project type")
+	}
+	if resources, err := Resolvers[resolverType](conf.Application); err != nil {
+		return nil, err
+	} else {
+		conf.Resources = resources
 	}
 	t := template.Must(template.New("Dockerfile").Parse(string(conf.Template)))
 	dockerfile := &bytes.Buffer{}

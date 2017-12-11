@@ -123,10 +123,10 @@ func LocalNodeModules() (map[string]*PackageJSON, error) {
 	return Projects, nil
 }
 
-// ResolveLocalDependancies will explore (via some graph expansion)
+// Resolve will explore (via some graph expansion)
 // once it is completed, it will return the list of the required
 // pacakages otherwise, return an informative error
-func ResolveLocalDependancies(project string) ([]string, error) {
+func Resolve(project string) ([]string, error) {
 	LocalPackages, err := LocalNodeModules()
 	if err != nil {
 		return []string{}, err

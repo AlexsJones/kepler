@@ -78,7 +78,7 @@ func AddCommands(cli *cli.Cli) {
 				Help: "Shows all the dependancies found locally",
 				Func: func(args []string) {
 					for _, project := range args {
-						deps, err := ResolveLocalDependancies(project)
+						deps, err := Resolve(project)
 						if err != nil {
 							color.Red("The hell?!: %s", err.Error())
 						} else {
