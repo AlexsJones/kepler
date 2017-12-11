@@ -100,4 +100,8 @@ func TestUndefinedValues(t *testing.T) {
 	if _, err := config.CreateStandaloneFile(); err == nil {
 		t.Error("Failed to report on missing attributes")
 	}
+	config.Application = "ValidString"
+	if _, err := config.CreateStandaloneFile(); err != nil {
+		t.Errorf("Should be an empty dockerfile")
+	}
 }

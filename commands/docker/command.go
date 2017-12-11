@@ -117,8 +117,5 @@ func (conf *Config) validate() error {
 	if conf.Application == "" {
 		return fmt.Errorf("Application does not have a valid value")
 	}
-	if conf.Type == "" {
-		return fmt.Errorf("Type does not have a valid value")
-	}
 	return nil
 }
