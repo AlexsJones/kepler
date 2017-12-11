@@ -38,6 +38,8 @@ func ShellCommand(command string, path string, validated bool) {
 	if err := cmd.Wait(); err != nil {
 		fmt.Println(err.Error())
 	} else {
-		color.Green("Successful")
+		if validated {
+			color.Green("Successful")
+		}
 	}
 }
