@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/AlexsJones/kepler/commands/node"
+	sh "github.com/AlexsJones/kepler/commands/shell"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -32,6 +33,7 @@ func init() {
 // in order to build the given application as a
 // docker image
 type Config struct {
+	// Application is always assumed to be the base name of the current directory
 	Application string
 	// Type allows for correct resolution of required resources
 	Type      string   `yaml:"Type"`
@@ -45,6 +47,9 @@ type Config struct {
 // On success, it will return a struct with all the required information
 // Otherwise, review the returned error message
 func CreateConfig(ProjectDir string) (*Config, error) {
+	if ProjectDir == "." {
+		ProjectDir = ""
+	}
 	conf := path.Join(ProjectDir, ".kepler/config.yaml")
 	if _, err := os.Stat(conf); os.IsNotExist(err) {
 		return nil, fmt.Errorf("Unable to find %s", conf)
@@ -117,6 +122,10 @@ func (conf *Config) CreateMetaFile() ([]byte, error) {
 		return nil, err
 	}
 	return conf.prepareTemplate()
+}
+
+func BuildImage(buildArgs ...string) error {
+	return sh.ShellCommand(fmt.Sprintf("docker build %s .", strings.Join(buildArgs, " ")), ".", false)
 }
 
 func (conf *Config) validate() error {
