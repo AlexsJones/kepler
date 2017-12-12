@@ -6,6 +6,7 @@ import (
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
 	"github.com/fatih/color"
+	gcr-cli "github.com/GoogleCloudPlatform/docker-credential-gcr/cli"
 )
 
 //AddCommands for the kubebuilder module
@@ -18,6 +19,13 @@ func AddCommands(cli *cli.Cli) {
 			fmt.Println("See help for working with kubebuilder")
 		},
 		SubCommands: []command.Command{
+			command.Command{
+				Name: "auth",
+				Help: "Authenticates you against all required services",
+				Func: func(args []string) {
+					loginCmd := gcr-cli.NewGCRLoginSubcommand()
+				},
+			},
 			command.Command{
 				Name: "deploy",
 				Help: "Deploy to a remote kubebuilder cluster",
