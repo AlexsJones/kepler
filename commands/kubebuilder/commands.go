@@ -7,10 +7,12 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"reflect"
 	"time"
 
 	event "github.com/AlexsJones/cloud-transponder/events"
 	"github.com/AlexsJones/cloud-transponder/events/pubsub"
+	"github.com/AlexsJones/kepler/commands/docker"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kubebuilder/src/data"
 	"github.com/fatih/color"
@@ -95,5 +97,41 @@ func publishKubebuilderfile(build *data.BuildDefinition) error {
 	time.Sleep(time.Second * 5)
 
 	color.Blue("Published to topic!")
+	return nil
+}
+
+// CheckError introduces the 'maybe' monad
+func CheckError(value interface{}, err error) interface{} {
+	if err != nil {
+		return err
+	}
+	return value
+}
+
+func IsType(object, t interface{}) bool {
+	return reflect.TypeOf(object) == reflect.TypeOf(t)
+}
+
+// BuildDockerImage will load the config within the given directory
+// and will build an image based on those parameters
+func BuildDockerImage(project string) error {
+	if _, err := os.Stat("Dockerfile"); !os.IsNotExist(err) {
+		return fmt.Errorf("Dockerfile found within local directory, aborting")
+	}
+	var result interface{}
+	result = CheckError(docker.CreateConfig(project))
+	if !IsType(result, docker.Config{}) {
+		return result.(error)
+	}
+	config := result.(docker.Config)
+	result = CheckError(config.CreateMetaFile())
+	if !IsType(result, []byte{}) {
+		return result.(error)
+	}
+	dockerfile := result.([]byte)
+	defer os.Remove("Dockerfile")
+	if err := ioutil.WriteFile("Dockerfile", dockerfile, 0644); err != nil {
+		return err
+	}
 	return nil
 }

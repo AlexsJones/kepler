@@ -5,6 +5,7 @@ package node
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
@@ -119,6 +120,9 @@ func AddCommands(cli *cli.Cli) {
 					}
 					// Write new package json to disk
 					filepath := "package.json"
+					// Have to ensure that remove the old package.json
+					// Otherwise there could be issues.
+					os.Remove(filepath)
 					o, err := marshal.PureMarshalIndent(pack, "", "    ")
 					if err != nil {
 						color.Red("An error occured, %s", err.Error())

@@ -38,6 +38,7 @@ func AddCommands(cli *cli.Cli) {
 							color.Red("%v", err)
 							return
 						}
+						// Make sure we remove our templated Dockerfile once we are done
 						defer os.Remove("Dockerfile")
 					}
 					BuildImage(args...)
