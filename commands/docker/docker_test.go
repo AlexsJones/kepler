@@ -21,13 +21,12 @@ COPY . /src
 `
 	config := &docker.Config{
 		Application: "Test Application",
-		Type:        "NoResolution",
 		Resources:   []string{},
 		Template:    []byte(template),
 	}
 	dockerfile, err := config.CreateStandaloneFile()
 	if err != nil {
-		t.Error("The template is rendered incorrectly: %v", err)
+		t.Error("The template is rendered incorrectly:", err)
 	}
 	if string(dockerfile) != ExpectedTemplate {
 		t.Log("Expected template:\n", ExpectedTemplate)
@@ -44,7 +43,6 @@ Plz break
 	`
 	config := &docker.Config{
 		Application: "Test Application",
-		Type:        "NoResolution",
 		Resources:   []string{},
 		Template:    []byte(template),
 	}
@@ -75,7 +73,6 @@ RUN echo 3
 `
 	config := &docker.Config{
 		Application: "Test Application",
-		Type:        "NoResolution",
 		Resources:   []string{"1", "2", "3"},
 		Template:    []byte(template),
 	}
@@ -99,6 +96,9 @@ func TestUndefinedValues(t *testing.T) {
 	config := &docker.Config{}
 	if _, err := config.CreateStandaloneFile(); err == nil {
 		t.Error("Failed to report on missing attributes")
+	}
+	if _, err := config.CreateMetaFile(); err == nil {
+		t.Error("Failed to report on missing Application name")
 	}
 	config.Application = "ValidString"
 	if _, err := config.CreateStandaloneFile(); err != nil {

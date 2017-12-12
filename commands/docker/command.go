@@ -13,12 +13,16 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// Resolvers is a map of functions that will determine all
+// the required external resources that could be found inside the meta repo
 var Resolvers map[string]func(string) ([]string, error)
+
+const noResolution = "none"
 
 func init() {
 	Resolvers = map[string]func(string) ([]string, error){
 		"node": node.Resolve,
-		"noresolution": func(empty string) ([]string, error) {
+		noResolution: func(empty string) ([]string, error) {
 			return []string{}, nil
 		},
 	}
@@ -32,7 +36,7 @@ type Config struct {
 	// Type allows for correct resolution of required resources
 	Type      string   `yaml:"Type"`
 	BuildArgs []string `yaml:"BuildArgs"`
-	Resources []string
+	Resources []string `yaml:"Resources"`
 	Template  []byte
 }
 
@@ -50,10 +54,15 @@ func CreateConfig(ProjectDir string) (*Config, error) {
 		return nil, err
 	}
 	config := Config{
-		Application: ProjectDir,
+		Application: path.Base(ProjectDir),
 	}
 	if err = yaml.Unmarshal(b, &config); err != nil {
 		return nil, err
+	}
+	// Enforce that resources are not resolved for this if
+	// config type isn't defined
+	if config.Type == "" {
+		config.Type = noResolution
 	}
 	template := path.Join(ProjectDir, ".kepler/Dockerfile")
 	if _, err = os.Stat(template); os.IsNotExist(err) {
@@ -75,7 +84,9 @@ func (conf *Config) prepareTemplate() ([]byte, error) {
 	if resources, err := Resolvers[resolverType](conf.Application); err != nil {
 		return nil, err
 	} else {
-		conf.Resources = resources
+		if resolverType != noResolution {
+			conf.Resources = append(conf.Resources, resources...)
+		}
 	}
 	t := template.Must(template.New("Dockerfile").Parse(string(conf.Template)))
 	dockerfile := &bytes.Buffer{}
@@ -93,7 +104,7 @@ func (conf *Config) CreateStandaloneFile() ([]byte, error) {
 	}
 	name := conf.Application
 	conf.Application = "."
-	conf.Type = "noresolution"
+	conf.Type = noResolution
 	b, err := conf.prepareTemplate()
 	conf.Application = name
 	return b, err
@@ -111,6 +122,9 @@ func (conf *Config) CreateMetaFile() ([]byte, error) {
 func (conf *Config) validate() error {
 	if conf.Application == "" {
 		return fmt.Errorf("Application does not have a valid value")
+	}
+	if conf.Type == "" {
+		conf.Type = noResolution
 	}
 	return nil
 }
