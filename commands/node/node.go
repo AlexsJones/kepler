@@ -4,14 +4,12 @@ package node
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
 	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/submodules"
-	"github.com/MovieStoreGuy/resources/marshal"
 	"github.com/fatih/color"
 	"gopkg.in/src-d/go-git.v4"
 )
@@ -96,15 +94,15 @@ func AddCommands(cli *cli.Cli) {
 				Name: "install",
 				Help: "Installs all the required vendor code",
 				Func: func(args []string) {
+					defer func() {
+						color.Yellow("Restoring backups")
+						RestoreBackups()
+					}()
 					color.Yellow("Attempting to link packages")
 					if err := LinkLocalDeps(); err != nil {
 						color.Red("Failed to link: %s", err.Error())
 						return
 					}
-					defer func() {
-						color.Yellow("Restoring backups")
-						RestoreBackups()
-					}()
 					color.Yellow("Attempting to install")
 					sh.ShellCommand("npm i", "", true)
 				},
@@ -123,31 +121,12 @@ func AddCommands(cli *cli.Cli) {
 					// Have to ensure that remove the old package.json
 					// Otherwise there could be issues.
 					os.Remove(filepath)
-					o, err := marshal.PureMarshalIndent(pack, "", "    ")
-					if err != nil {
-						color.Red("An error occured, %s", err.Error())
-						return
-					}
-					o = append(o, []byte("\n")...)
-					if err = ioutil.WriteFile(filepath, o, 0644); err != nil {
+					if err = pack.WriteTo(filepath); err != nil {
 						color.Red("Failed to write linked %s", filepath)
+						color.Red("Due to %v", err)
 					}
 				},
 			},
 		},
 	})
-}
-
-//PackageJSON structure of package.json
-type PackageJSON struct {
-	Name            string            `json:"name"`
-	Version         string            `json:"version"`
-	Description     string            `json:"description"`
-	Main            string            `json:"main"`
-	Bugs            map[string]string `json:"bugs,omitempty"`
-	Scripts         map[string]string `json:"scripts,omitempty"`
-	Dependencies    map[string]string `json:"dependencies,omitempty"`
-	DevDependencies map[string]string `json:"devDependencies,omitempty"`
-	Private         bool              `json:"private,omitempty"`
-	License         string            `json:"license,omitempty"`
 }

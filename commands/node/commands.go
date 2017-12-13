@@ -12,12 +12,35 @@ import (
 
 	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/submodules"
-	"github.com/MovieStoreGuy/resources/files"
-	"github.com/MovieStoreGuy/resources/marshal"
 	"github.com/fatih/color"
 
 	git "gopkg.in/src-d/go-git.v4"
 )
+
+//PackageJSON structure of package.json
+type PackageJSON struct {
+	Name            string            `json:"name"`
+	Version         string            `json:"version"`
+	Description     string            `json:"description"`
+	Main            string            `json:"main"`
+	Bugs            map[string]string `json:"bugs,omitempty"`
+	Scripts         map[string]string `json:"scripts,omitempty"`
+	Dependencies    map[string]string `json:"dependencies,omitempty"`
+	DevDependencies map[string]string `json:"devDependencies,omitempty"`
+	Private         bool              `json:"private,omitempty"`
+	License         string            `json:"license,omitempty"`
+}
+
+// WriteTo will write the current contents of the PackageJSON
+// into the given directory
+func (pack *PackageJSON) WriteTo(path string) error {
+	o, err := json.MarshalIndent(pack, "", "    ")
+	if err != nil {
+		return err
+	}
+	o = append(o, []byte("\n")...)
+	return ioutil.WriteFile(path, o, 0644)
+}
 
 func recursePackages(p *PackageJSON, callback func(moduleName string, key string, value string)) error {
 
@@ -93,16 +116,11 @@ func fixLinks(subPath string, filename string, prefix string, target string, sho
 			}
 		}
 	})
-	o, err := json.MarshalIndent(packagejson, "", "    ")
-	if err != nil {
-		return err
-	}
-	o = append(o, []byte("\n")...)
-
-	return ioutil.WriteFile(filepath, o, 0644)
+	return packagejson.WriteTo(filepath)
 }
 
-// LocalNodeModules creates a struct containing information about the meta repo
+// LocalNodeModules will search through all the submodules
+// and return all the projects that are valid node projects
 func LocalNodeModules() (map[string]*PackageJSON, error) {
 	Projects := make(map[string]*PackageJSON)
 	submodules.LoopSubmodules(func(sub *git.Submodule) {
@@ -173,48 +191,51 @@ func Resolve(project string) ([]string, error) {
 	return deps, nil
 }
 
+// LinkLocalDeps search all node projects found inside the meta
+// repo and update all the package json found.
+// WARNING: This function is distructive and any unstaged changes
+//          made will result in data loss.
 func LinkLocalDeps() error {
 	local, err := LocalNodeModules()
 	if err != nil {
 		return err
 	}
-	for dir, pack := range local {
-		// Need to create a backup file
-		filepath := path.Join(dir, "package.json.bak")
-		if _, err = os.Stat(filepath); !os.IsNotExist(err) {
-			color.Red("%s already exists", filepath)
-			continue
-		}
-		if err = files.Copy(path.Join(dir, "package.json"), filepath); err != nil {
-			color.Red("Failed to create %s", filepath)
-		}
+	for dir := range local {
 		color.Blue("Updating %s links", dir)
-		for name := range pack.Dependencies {
-			if _, exist := local[name]; exist {
-				pack.Dependencies[name] = fmt.Sprintf("file:../%s", name)
-			}
-		}
-		for name := range pack.DevDependencies {
-			if _, exist := local[name]; exist {
-				pack.DevDependencies[name] = fmt.Sprintf("file:../%s", name)
-			}
-		}
-		// Write new package json to disk
-		filepath = path.Join(dir, "package.json")
-		if err := os.Remove(filepath); err != nil {
-			return err
-		}
-		o, err := marshal.PureMarshalIndent(pack, "", "    ")
+		pack, err := LinkLocalPackages(dir, local)
 		if err != nil {
 			return err
 		}
-		o = append(o, []byte("\n")...)
-		if err = ioutil.WriteFile(filepath, o, 0644); err != nil {
+		filepath := path.Join(dir, "package.json")
+		if err := os.Remove(filepath); err != nil {
+			return err
+		}
+		if err = pack.WriteTo(filepath); err != nil {
 			color.Red("Failed to write linked %s", filepath)
 			return err
 		}
 	}
 	return nil
+}
+
+// LinkLocalPackages will update a project Dependencies if they can
+// be found locally and update their resource to be a file link
+func LinkLocalPackages(project string, local map[string]*PackageJSON) (*PackageJSON, error) {
+	if _, exist := local[project]; !exist {
+		return nil, fmt.Errorf("Project can not be found locally")
+	}
+	projectPackage := local[project]
+	for name := range projectPackage.Dependencies {
+		if _, exist := local[name]; exist {
+			projectPackage.Dependencies[name] = fmt.Sprintf("file:../%s", name)
+		}
+	}
+	for name := range projectPackage.DevDependencies {
+		if _, exist := local[name]; exist {
+			projectPackage.Dependencies[name] = fmt.Sprintf("file:../%s", name)
+		}
+	}
+	return projectPackage, nil
 }
 
 func RestoreBackups() error {
