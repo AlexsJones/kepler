@@ -232,12 +232,13 @@ func LinkLocalPackages(project string, local map[string]*PackageJSON) (*PackageJ
 	}
 	for name := range projectPackage.DevDependencies {
 		if _, exist := local[name]; exist {
-			projectPackage.Dependencies[name] = fmt.Sprintf("file:../%s", name)
+			projectPackage.DevDependencies[name] = fmt.Sprintf("file:../%s", name)
 		}
 	}
 	return projectPackage, nil
 }
 
+//RestoreBackups will itterate
 func RestoreBackups() error {
 	local, err := LocalNodeModules()
 	if err != nil {

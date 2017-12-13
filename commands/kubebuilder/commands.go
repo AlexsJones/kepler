@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	event "github.com/AlexsJones/cloud-transponder/events"
@@ -15,7 +14,9 @@ import (
 	"github.com/AlexsJones/kepler/commands/docker"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kubebuilder/src/data"
+	"github.com/GoogleCloudPlatform/docker-credential-gcr/auth"
 	"github.com/fatih/color"
+	rawdocker "github.com/fsouza/go-dockerclient"
 	"github.com/gogo/protobuf/proto"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -100,6 +101,31 @@ func publishKubebuilderfile(build *data.BuildDefinition) error {
 	return nil
 }
 
+func authenticateDocker() (*rawdocker.AuthConfiguration, error) {
+	client := auth.GCRLoginAgent{
+		AllowBrowser: true,
+	}
+	resp, err := client.PerformLogin()
+	if err != nil {
+		return nil, err
+	}
+	// See https://cloud.google.com/container-registry/docs/advanced-authentication
+	// for where these values were obtained
+	access := &rawdocker.AuthConfiguration{
+		Username:      "oauth2accesstoken",
+		Password:      resp.AccessToken,
+		ServerAddress: "https://us.gcr.io",
+	}
+	dockerCli, err := rawdocker.NewClientFromEnv()
+	if err != nil {
+		return nil, err
+	}
+	if _, err = dockerCli.AuthCheck(access); err != nil {
+		return nil, err
+	}
+	return access, err
+}
+
 // BuildDockerImage will load the config within the given directory
 // and will build an image based on those parameters
 func BuildDockerImage(project string) error {
@@ -122,6 +148,5 @@ func BuildDockerImage(project string) error {
 	if err := ioutil.WriteFile("Dockerfile", dockerfile, 0644); err != nil {
 		return err
 	}
-	// Time to do the Docker build stuff
-	return docker.BuildImage(strings.Join(config.BuildArgs, " "))
+	return nil
 }
