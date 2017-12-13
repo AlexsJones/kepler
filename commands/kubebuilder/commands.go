@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	event "github.com/AlexsJones/cloud-transponder/events"
@@ -102,6 +103,9 @@ func publishKubebuilderfile(build *data.BuildDefinition) error {
 // BuildDockerImage will load the config within the given directory
 // and will build an image based on those parameters
 func BuildDockerImage(project string) error {
+	// If a Dockerfile lives in the current directory,
+	// we can not assume that it has all the current information so we have to
+	// abort and let the callee resolve this issue.
 	if _, err := os.Stat("Dockerfile"); !os.IsNotExist(err) {
 		return fmt.Errorf("Dockerfile found within local directory, aborting")
 	}
@@ -113,9 +117,11 @@ func BuildDockerImage(project string) error {
 	if err != nil {
 		return err
 	}
+	// We want to remove the generated Dockefiler once we are done
 	defer os.Remove("Dockerfile")
 	if err := ioutil.WriteFile("Dockerfile", dockerfile, 0644); err != nil {
 		return err
 	}
-	return nil
+	// Time to do the Docker build stuff
+	return docker.BuildImage(strings.Join(config.BuildArgs, " "))
 }
