@@ -1,6 +1,7 @@
 package docker_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/AlexsJones/kepler/commands/docker"
@@ -103,5 +104,61 @@ func TestUndefinedValues(t *testing.T) {
 	config.Application = "ValidString"
 	if _, err := config.CreateStandaloneFile(); err != nil {
 		t.Errorf("Should be an empty dockerfile")
+	}
+}
+
+func TestNotImplementedProjectType(t *testing.T) {
+	template := `
+Some lovely text {{.Application}}
+
+{{range .Resource}}
+{{.}}
+{{end}}
+`
+	config := &docker.Config{
+		Application: "What a legend",
+		Type:        "EvilType",
+		Template:    []byte(template),
+	}
+	if _, err := config.CreateMetaFile(); err == nil {
+		t.Errorf("%s is not a valid Project type", config.Type)
+	}
+}
+
+func TestResourceResolution(t *testing.T) {
+	docker.Resolvers["nice"] = func(a string) ([]string, error) {
+		return []string{a, a}, nil
+	}
+	docker.Resolvers["naughty"] = func(a string) ([]string, error) {
+		return nil, fmt.Errorf("Would you like an error?")
+	}
+	template := `
+Example {{.Application}}
+
+Hello{{range .Resources}} {{.}}{{end}}
+`
+	expected := `
+Example test
+
+Hello test test
+`
+	config := &docker.Config{
+		Application: "test",
+		Type:        "Nice",
+		Template:    []byte(template),
+	}
+	dockerfile, err := config.CreateMetaFile()
+	if err != nil {
+		t.Log("Failed to see new resolver type")
+		t.Error(err)
+	}
+	if string(dockerfile) != expected {
+		t.Log("Expected result:\n", expected)
+		t.Log("Result:\n", string(dockerfile))
+		t.Error("Failed to produce correct template")
+	}
+	config.Type = "Naughty"
+	if _, err = config.CreateMetaFile(); err == nil {
+		t.Error("expected error to be reported with naughty resolver")
 	}
 }

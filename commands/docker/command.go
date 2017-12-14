@@ -76,7 +76,7 @@ func CreateConfig(ProjectDir string) (*Config, error) {
 	if config.Type == "" {
 		config.Type = noResolution
 	}
-	template := path.Join(ProjectDir, ".kepler/Dockerfile")
+	template := path.Join(ProjectDir, ".kepler/Dockerfile.tmpl")
 	if _, err = os.Stat(template); os.IsNotExist(err) {
 		return nil, fmt.Errorf("Expected file %s missing", template)
 	}
@@ -132,6 +132,8 @@ func (conf *Config) CreateMetaFile() ([]byte, error) {
 }
 
 func BuildImage(buildArgs ...string) error {
+	// Once someone creates an actual working golang api to interact with Docker
+	// this is the best I can do.
 	return sh.ShellCommand(fmt.Sprintf("docker build %s .", strings.Join(buildArgs, " ")), ".", false)
 }
 
