@@ -11,7 +11,7 @@ import (
 
 //ShellCommand lets you perform a shell command in bash
 //It also captures stderr and stdout into Kepler
-func ShellCommand(command string, path string, validated bool) {
+func ShellCommand(command string, path string, validated bool) error {
 	cmd := exec.Command("bash", "-c", command)
 	if path != "" {
 		cmd.Dir = path
@@ -32,13 +32,15 @@ func ShellCommand(command string, path string, validated bool) {
 			fmt.Printf("%s\n", errScanner.Text())
 		}
 	}()
-	err := cmd.Start()
-	if err != nil {
-		fmt.Println(err.Error())
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	if err := cmd.Wait(); err != nil {
+		return err
 	} else {
 		if validated {
-			color.Green("[%s]OK\n", path)
+			color.Green("Successful")
 		}
 	}
-
+	return nil
 }

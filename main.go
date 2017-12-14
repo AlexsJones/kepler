@@ -13,6 +13,7 @@ import (
 	"runtime"
 
 	"github.com/AlexsJones/cli/cli"
+	"github.com/AlexsJones/kepler/commands/docker"
 	"github.com/AlexsJones/kepler/commands/github"
 	"github.com/AlexsJones/kepler/commands/kubebuilder"
 	"github.com/AlexsJones/kepler/commands/node"
@@ -77,9 +78,13 @@ func main() {
 	submodules.AddCommands(cli)
 	storage.AddCommands(cli)
 	palette.AddCommands(cli)
+	docker.AddCommands(cli)
 	//-------------------------------------------
 	//Additional commands
-	github.Login()
+	// Only automatically login if there is AccessToken set
+	if store := storage.GetInstance(); store.Github.AccessToken != "" {
+		github.Login()
+	}
 	//-------------------------------------------
 	cli.Run()
 }

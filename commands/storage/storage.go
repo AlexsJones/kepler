@@ -14,6 +14,7 @@ import (
 	"github.com/AlexsJones/cli/command"
 	"github.com/fatih/color"
 	homedir "github.com/mitchellh/go-homedir"
+	"golang.org/x/oauth2"
 )
 
 //AddCommands for this module
@@ -49,8 +50,9 @@ const store = ".kepler"
 
 //Storage structure
 type Storage struct {
-	Github      *Github      `json:"github"`
-	Kubebuilder *Kubebuilder `json:"kubebuilder"`
+	Github      *Github       `json:"github"`
+	Kubebuilder *Kubebuilder  `json:"kubebuilder"`
+	GCRAuth     *oauth2.Token `json:"GCRAuth"`
 }
 
 //Kubebuilder specific sub structure
