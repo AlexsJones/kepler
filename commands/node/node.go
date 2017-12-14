@@ -94,6 +94,10 @@ func AddCommands(cli *cli.Cli) {
 				Name: "install",
 				Help: "Installs all the required vendor code",
 				Func: func(args []string) {
+					if _, err := os.Stat("package.json"); os.IsNotExist(err) {
+						color.Red("No package.json found in current directory")
+						return
+					}
 					defer func() {
 						color.Yellow("Restoring backups")
 						RestoreBackups()
