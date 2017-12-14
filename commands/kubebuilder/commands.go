@@ -13,6 +13,7 @@ import (
 	event "github.com/AlexsJones/cloud-transponder/events"
 	"github.com/AlexsJones/cloud-transponder/events/pubsub"
 	"github.com/AlexsJones/kepler/commands/docker"
+	"github.com/AlexsJones/kepler/commands/node"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kubebuilder/src/data"
 	login "github.com/GoogleCloudPlatform/docker-credential-gcr/auth"
@@ -117,6 +118,15 @@ func BuildDockerImage(project string) error {
 	if err != nil {
 		return err
 	}
+
+	// When resolve different config Types, we may also be rewriting
+	// content on disc, so this should ensure that content is always
+	// always as the user left it.
+	switch config.Type {
+	case "node":
+		defer node.RestoreBackups()
+	}
+
 	dockerfile, err := config.CreateMetaFile()
 	if err != nil {
 		return err

@@ -22,7 +22,14 @@ const noResolution = "none"
 
 func init() {
 	Resolvers = map[string]func(string) ([]string, error){
-		"node": node.Resolve,
+		// If we are going to build a node project from the meta
+		// repo, we must enforce that we link all resolved projects.
+		// Doing it inline as it shouldn't be called by any other
+		// part of the application bare this part.
+		"node": func(project string) ([]string, error) {
+			node.LinkLocalDeps()
+			return node.Resolve(project)
+		},
 		noResolution: func(empty string) ([]string, error) {
 			return []string{}, nil
 		},
