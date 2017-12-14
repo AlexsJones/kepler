@@ -1,13 +1,10 @@
 package kubebuilder
 
 import (
-	"context"
-	"flag"
 	"fmt"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
-	gcr "github.com/GoogleCloudPlatform/docker-credential-gcr/cli"
 	"github.com/fatih/color"
 )
 
@@ -25,7 +22,11 @@ func AddCommands(cli *cli.Cli) {
 				Name: "auth",
 				Help: "Authenticates you against all required services",
 				Func: func(args []string) {
-					gcr.NewGCRLoginSubcommand().Execute(context.Background(), &flag.FlagSet{})
+					if err := Authenticate(); err != nil {
+						color.Red("%v", err)
+					} else {
+						color.Green("Successfully logged in")
+					}
 				},
 			},
 			command.Command{

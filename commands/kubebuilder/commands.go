@@ -15,8 +15,11 @@ import (
 	"github.com/AlexsJones/kepler/commands/docker"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kubebuilder/src/data"
+	login "github.com/GoogleCloudPlatform/docker-credential-gcr/auth"
+	"github.com/GoogleCloudPlatform/docker-credential-gcr/config"
 	"github.com/fatih/color"
 	"github.com/gogo/protobuf/proto"
+	"golang.org/x/oauth2"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -30,6 +33,7 @@ func exists(path string) (bool, error) {
 	}
 	return true, err
 }
+
 func loadKubebuilderFile() (*data.BuildDefinition, error) {
 
 	if _, err := exists(".kubebuilder"); os.IsNotExist(err) {
@@ -124,4 +128,40 @@ func BuildDockerImage(project string) error {
 	}
 	// Time to do the Docker build stuff
 	return docker.BuildImage(strings.Join(config.BuildArgs, " "))
+}
+
+// Authenticate will login to the required services only if the services
+// keys have expired or require updating.
+func Authenticate() error {
+	auth := storage.GetInstance().GCRAuth
+	switch {
+	case auth == nil:
+		// Using the GCR Login Agent to obtain us
+		// the required access token
+		client := &login.GCRLoginAgent{
+			AllowBrowser: true,
+		}
+		token, err := client.PerformLogin()
+		if err != nil {
+			return err
+		}
+		storage.GetInstance().GCRAuth = token
+	case time.Now().After(auth.Expiry):
+		color.Yellow("Auth has expired, trying to refresh token")
+		conf := &oauth2.Config{
+			ClientID:     config.GCRCredHelperClientID,
+			ClientSecret: config.GCRCredHelperClientNotSoSecret,
+			Scopes:       config.GCRScopes,
+			Endpoint:     config.GCROAuth2Endpoint,
+		}
+		// It is expected that will update our access token instead of
+		// constantly asking for us to update
+
+		token, err := oauth2.ReuseTokenSource(auth, conf.TokenSource(config.OAuthHTTPContext, auth)).Token()
+		if err != nil {
+			return err
+		}
+		storage.GetInstance().GCRAuth = token
+	}
+	return storage.GetInstance().Save()
 }
