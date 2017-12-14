@@ -119,9 +119,8 @@ func BuildDockerImage(project string) error {
 		return err
 	}
 
-	// When resolve different config Types, we may also be rewriting
-	// content on disc, so this should ensure that content is always
-	// always as the user left it.
+	// When resolving different config types, we may also be rewriting
+	// content on disc, so this should ensure that content as the user left it.
 	switch config.Type {
 	case "node":
 		defer node.RestoreBackups()
