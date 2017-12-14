@@ -34,7 +34,7 @@ func AddCommands(cli *cli.Cli) {
 				Help: "Builds a docker image based off a kepler definitions",
 				Func: func(args []string) {
 					if len(args) == 0 {
-						color.Red("Please tpye what projects you expect to build")
+						color.Red("Please type what projects you expect to build")
 						return
 					}
 					for _, project := range args {

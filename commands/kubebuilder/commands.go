@@ -47,14 +47,14 @@ func loadKubebuilderFile() (*data.BuildDefinition, error) {
 	//Load yaml
 	raw, err := ioutil.ReadFile(".kubebuilder/build.yaml")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	//Hand cranking a build definition for the test
 	builddef := data.BuildDefinition{}
 
 	err = yaml.Unmarshal(raw, &builddef)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return nil, err
 	}
 	log.Printf("%v\n", builddef)
 
