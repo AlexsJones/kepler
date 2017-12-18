@@ -107,8 +107,9 @@ func publishKubebuilderfile(build *data.BuildDefinition) error {
 
 func authenticateDocker() error {
 	for _, registry := range []string{"gcr.io", "us.gcr.io"} {
+		command := fmt.Sprintf("docker login -u %s -p %s https://%s", "oauth2accesstoken", storage.GetInstance().GCRAuth.AccessToken, registry)
 		// Gross hack untill "github.com/moby/moby" can be fetched using go get
-		if err := sh.ShellCommand(fmt.Sprintf("docker login -u %s -p %s https://%s", "oauth2accesstoken", storage.GetInstance().GCRAuth.AccessToken, registry), "", false); err != nil {
+		if err := sh.ShellCommand(command, "", false); err != nil {
 			return err
 		}
 	}
