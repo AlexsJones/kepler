@@ -27,6 +27,9 @@ func AddCommands(cli *cli.Cli) {
 					} else {
 						color.Green("Successfully logged in")
 					}
+					if err := authenticateDocker(); err != nil {
+						color.Red("We have failed %v", err)
+					}
 				},
 			},
 			command.Command{

@@ -13,13 +13,12 @@ import (
 	"github.com/AlexsJones/cloud-transponder/events/pubsub"
 	"github.com/AlexsJones/kepler/commands/docker"
 	"github.com/AlexsJones/kepler/commands/node"
+	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kubebuilder/src/data"
-	"github.com/GoogleCloudPlatform/docker-credential-gcr/auth"
 	login "github.com/GoogleCloudPlatform/docker-credential-gcr/auth"
 	"github.com/GoogleCloudPlatform/docker-credential-gcr/config"
 	"github.com/fatih/color"
-	rawdocker "github.com/fsouza/go-dockerclient"
 	"github.com/gogo/protobuf/proto"
 	"golang.org/x/oauth2"
 	yaml "gopkg.in/yaml.v2"
@@ -106,29 +105,14 @@ func publishKubebuilderfile(build *data.BuildDefinition) error {
 	return nil
 }
 
-func authenticateDocker() (*rawdocker.AuthConfiguration, error) {
-	client := auth.GCRLoginAgent{
-		AllowBrowser: true,
+func authenticateDocker() error {
+	for _, registry := range []string{"gcr.io", "us.gcr.io"} {
+		// Gross hack untill "github.com/moby/moby" can be fetched using go get
+		if err := sh.ShellCommand(fmt.Sprintf("docker login -u %s -p %s https://%s", "oauth2accesstoken", storage.GetInstance().GCRAuth.AccessToken, registry), "", false); err != nil {
+			return err
+		}
 	}
-	resp, err := client.PerformLogin()
-	if err != nil {
-		return nil, err
-	}
-	// See https://cloud.google.com/container-registry/docs/advanced-authentication
-	// for where these values were obtained
-	access := &rawdocker.AuthConfiguration{
-		Username:      "oauth2accesstoken",
-		Password:      resp.AccessToken,
-		ServerAddress: "https://us.gcr.io",
-	}
-	dockerCli, err := rawdocker.NewClientFromEnv()
-	if err != nil {
-		return nil, err
-	}
-	if _, err = dockerCli.AuthCheck(access); err != nil {
-		return nil, err
-	}
-	return access, err
+	return nil
 }
 
 // BuildDockerImage will load the config within the given directory
