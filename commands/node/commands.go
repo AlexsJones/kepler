@@ -12,6 +12,7 @@ import (
 
 	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/submodules"
+	"github.com/MovieStoreGuy/resources/marshal"
 	"github.com/fatih/color"
 
 	git "gopkg.in/src-d/go-git.v4"
@@ -34,7 +35,7 @@ type PackageJSON struct {
 // WriteTo will write the current contents of the PackageJSON
 // into the given directory
 func (pack *PackageJSON) WriteTo(path string) error {
-	o, err := json.MarshalIndent(pack, "", "    ")
+	o, err := marshal.PureMarshalIndent(pack, "", "    ")
 	if err != nil {
 		return err
 	}
