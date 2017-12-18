@@ -49,6 +49,8 @@ type Config struct {
 // On success, it will return a struct with all the required information
 // Otherwise, review the returned error message
 func CreateConfig(projectDir string) (*Config, error) {
+	// If we have been told to use the local directory,
+	// Set it to blank so that we don't mess up references
 	if projectDir == "." {
 		projectDir = ""
 	}
