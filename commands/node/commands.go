@@ -204,7 +204,7 @@ func LinkLocalDeps() error {
 	}
 	for dir := range local {
 		color.Blue("Updating %s links", dir)
-		pack, err := LinkLocalPackages(dir, local)
+		pack, err := updatePackageContents(dir, local)
 		if err != nil {
 			return err
 		}
@@ -220,9 +220,9 @@ func LinkLocalDeps() error {
 	return nil
 }
 
-// LinkLocalPackages will update a project Dependencies if they can
+// UpdatePackageContents will update a project Dependencies if they can
 // be found locally and update their resource to be a file link
-func LinkLocalPackages(project string, local map[string]*PackageJSON) (*PackageJSON, error) {
+func updatePackageContents(project string, local map[string]*PackageJSON) (*PackageJSON, error) {
 	if _, exist := local[project]; !exist {
 		return nil, fmt.Errorf("Project can not be found locally")
 	}
