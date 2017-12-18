@@ -141,8 +141,9 @@ func LocalNodeModules() (map[string]*PackageJSON, error) {
 	return Projects, nil
 }
 
-// Resolve will explore (via some graph expansion)
-// once it is completed, it will return the list of the required
+// Resolve will explore search through the given package json of project
+// and all the required projects found locally.
+// Once it is completed, it will return the list of the required
 // pacakages otherwise, return an informative error
 func Resolve(project string) ([]string, error) {
 	LocalPackages, err := LocalNodeModules()
@@ -245,10 +246,11 @@ func RestoreBackups() error {
 		return err
 	}
 	for name := range local {
-		filepath := path.Join(name, "package.json.bak")
-		os.Remove(filepath)
-		if _, err = os.Stat(filepath); !os.IsNotExist(err) {
-			sh.ShellCommand("git checkout HEAD -- package.json", name, false)
+		if _, err = os.Stat("package.json"); !os.IsNotExist(err) {
+			err := sh.ShellCommand("git checkout HEAD -- package.json", name, false)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
