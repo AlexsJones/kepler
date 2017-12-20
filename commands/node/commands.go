@@ -240,7 +240,8 @@ func updatePackageContents(project string, local map[string]*PackageJSON) (*Pack
 	return projectPackage, nil
 }
 
-//RestoreBackups will itterate
+// RestoreBackups will itterate through all the node projects and reset
+// their package.json back to what they were before being modified.
 func RestoreBackups() error {
 	local, err := LocalNodeModules()
 	if err != nil {

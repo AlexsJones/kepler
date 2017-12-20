@@ -14,7 +14,7 @@ func AddCommands(cli *cli.Cli) {
 		Name: "docker",
 		Help: "docker command palette",
 		Func: func(args []string) {
-			color.Magenta("WIP")
+			color.Magenta("Please see the help for usage")
 		},
 		SubCommands: []command.Command{
 			command.Command{
