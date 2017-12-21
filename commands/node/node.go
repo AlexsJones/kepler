@@ -128,7 +128,9 @@ func AddCommands(cli *cli.Cli) {
 					if err = pack.WriteTo(filepath); err != nil {
 						color.Red("Failed to write linked %s", filepath)
 						color.Red("Due to %v", err)
+						return
 					}
+					color.Green("Successfully created new package.json")
 				},
 			},
 		},
