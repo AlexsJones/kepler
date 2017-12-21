@@ -5,6 +5,7 @@ package node
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
@@ -108,7 +109,7 @@ func AddCommands(cli *cli.Cli) {
 						return
 					}
 					color.Yellow("Attempting to install")
-					sh.ShellCommand("npm i", "", true)
+					sh.ShellCommand(fmt.Sprintf("npm i %s", strings.Join(args, " ")), "", true)
 				},
 			},
 			command.Command{
