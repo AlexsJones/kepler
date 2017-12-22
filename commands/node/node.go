@@ -4,9 +4,12 @@ package node
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
+	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/submodules"
 	"github.com/fatih/color"
 	"gopkg.in/src-d/go-git.v4"
@@ -22,23 +25,6 @@ func AddCommands(cli *cli.Cli) {
 			fmt.Println("See help for working with npm")
 		},
 		SubCommands: []command.Command{
-			command.Command{
-				Name: "file",
-				Help: "relink an npm package locally<prefix> <string>",
-				Func: func(args []string) {
-					if len(args) < 2 {
-						fmt.Println("Please give a target package string to try to convert to a file link <prefix> <string> e.g. file ../../ googleremotes.git")
-						return
-					}
-					submodules.LoopSubmodules(func(sub *git.Submodule) {
-						if err := fixLinks(sub.Config().Path, "package.json", args[0], args[1], false); err != nil {
-							fmt.Println(err.Error())
-						} else {
-							fmt.Printf("- Link fixed: %s\n", sub.Config().Path)
-						}
-					})
-				},
-			},
 			command.Command{
 				Name: "remove",
 				Help: "remove a dep from package.json <string>",
@@ -79,7 +65,7 @@ func AddCommands(cli *cli.Cli) {
 						return
 					}
 					if len(i) == 0 {
-						color.Red("There appears to be no happiness in the world")
+						color.Red("No submodules found")
 						return
 					}
 					for name := range i {
@@ -92,7 +78,7 @@ func AddCommands(cli *cli.Cli) {
 				Help: "Shows all the dependancies found locally",
 				Func: func(args []string) {
 					for _, project := range args {
-						deps, err := ResolveLocalDependancies(project)
+						deps, err := Resolve(project)
 						if err != nil {
 							color.Red("The hell?!: %s", err.Error())
 						} else {
@@ -105,18 +91,49 @@ func AddCommands(cli *cli.Cli) {
 					}
 				},
 			},
+			command.Command{
+				Name: "install",
+				Help: "Installs all the required vendor code",
+				Func: func(args []string) {
+					if _, err := os.Stat("package.json"); os.IsNotExist(err) {
+						color.Red("No package.json found in current directory")
+						return
+					}
+					defer func() {
+						color.Yellow("Restoring backups")
+						RestoreBackups()
+					}()
+					color.Yellow("Attempting to link packages")
+					if err := LinkLocalDeps(); err != nil {
+						color.Red("Failed to link: %s", err.Error())
+						return
+					}
+					color.Yellow("Attempting to install")
+					sh.ShellCommand(fmt.Sprintf("npm i %s", strings.Join(args, " ")), "", true)
+				},
+			},
+			command.Command{
+				Name: "init",
+				Help: "Create the package json for a meta repo",
+				Func: func(args []string) {
+					pack, err := CreateMetaPackageJson()
+					if err != nil {
+						color.Red("Failed to generate meta package json, %s", err.Error())
+						return
+					}
+					// Write new package json to disk
+					filepath := "package.json"
+					// Have to ensure that remove the old package.json
+					// Otherwise there could be issues.
+					os.Remove(filepath)
+					if err = pack.WriteTo(filepath); err != nil {
+						color.Red("Failed to write linked %s", filepath)
+						color.Red("Due to %v", err)
+						return
+					}
+					color.Green("Successfully created new package.json")
+				},
+			},
 		},
 	})
-}
-
-//PackageJSON structure of package.json
-type PackageJSON struct {
-	Name            string            `json:"name"`
-	Version         string            `json:"version"`
-	Description     string            `json:"description"`
-	Main            string            `json:"main"`
-	Author          string            `json:"author"`
-	Scripts         map[string]string `json:"scripts"`
-	Dependencies    map[string]string `json:"dependencies"`
-	DevDependencies map[string]string `json:"devDependencies"`
 }

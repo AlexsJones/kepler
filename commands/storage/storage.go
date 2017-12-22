@@ -14,6 +14,7 @@ import (
 	"github.com/AlexsJones/cli/command"
 	"github.com/fatih/color"
 	homedir "github.com/mitchellh/go-homedir"
+	"golang.org/x/oauth2"
 )
 
 //AddCommands for this module
@@ -49,8 +50,9 @@ const store = ".kepler"
 
 //Storage structure
 type Storage struct {
-	Github      *Github      `json:"github"`
-	Kubebuilder *Kubebuilder `json:"kubebuilder"`
+	Github      *Github       `json:"github"`
+	Kubebuilder *Kubebuilder  `json:"kubebuilder"`
+	GCRAuth     *oauth2.Token `json:"GCRAuth"`
 }
 
 //Kubebuilder specific sub structure
@@ -100,16 +102,20 @@ func GetInstance() *Storage {
 			fmt.Println(err)
 			panic(err)
 		}
-		if doesExist != true {
+		switch {
+		case doesExist:
+			i, err := Load()
+			if err == nil {
+				instance = i
+				break
+			}
+			color.Red("Unable to load stored data due to: %v", err)
+			fallthrough
+		default:
+			color.Yellow("Creating storage defaults")
 			instance = &Storage{}
 			instance.Github = &Github{TeamID: 0}
 			instance.Kubebuilder = &Kubebuilder{}
-		} else {
-			i, err := Load()
-			if err != nil {
-				panic(err)
-			}
-			instance = i
 		}
 	})
 	return instance
@@ -180,9 +186,8 @@ func Load() (*Storage, error) {
 		return nil, err
 	}
 	var s Storage
-	json.Unmarshal(b, &s)
-
-	return &s, nil
+	err = json.Unmarshal(b, &s)
+	return &s, err
 }
 
 //ShowStorage in kepler
