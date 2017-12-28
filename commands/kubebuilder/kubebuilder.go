@@ -20,13 +20,17 @@ func AddCommands(cli *cli.Cli) {
 		SubCommands: []command.Command{
 			command.Command{
 				Name: "auth",
-				Help: "Authenticates you against all required services",
+				Help: "Authenticates you into GCP GCR",
 				Func: func(args []string) {
 					if err := Authenticate(); err != nil {
 						color.Red("%v", err)
-					} else {
-						color.Green("Successfully logged in")
+						return
 					}
+					if err := authenticateDocker(); err != nil {
+						color.Red("Failed to login %v", err)
+						return
+					}
+					color.Green("Docker Successfully logged into GCR")
 				},
 			},
 			command.Command{
@@ -34,7 +38,7 @@ func AddCommands(cli *cli.Cli) {
 				Help: "Builds a docker image based off a kepler definitions",
 				Func: func(args []string) {
 					if len(args) == 0 {
-						color.Red("Please tpye what projects you expect to build")
+						color.Red("Please type what projects you expect to build")
 						return
 					}
 					for _, project := range args {

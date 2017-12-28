@@ -7,13 +7,13 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	event "github.com/AlexsJones/cloud-transponder/events"
 	"github.com/AlexsJones/cloud-transponder/events/pubsub"
 	"github.com/AlexsJones/kepler/commands/docker"
 	"github.com/AlexsJones/kepler/commands/node"
+	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kubebuilder/src/data"
 	login "github.com/GoogleCloudPlatform/docker-credential-gcr/auth"
@@ -47,14 +47,14 @@ func loadKubebuilderFile() (*data.BuildDefinition, error) {
 	//Load yaml
 	raw, err := ioutil.ReadFile(".kubebuilder/build.yaml")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	//Hand cranking a build definition for the test
 	builddef := data.BuildDefinition{}
 
 	err = yaml.Unmarshal(raw, &builddef)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		return nil, err
 	}
 	log.Printf("%v\n", builddef)
 
@@ -105,6 +105,17 @@ func publishKubebuilderfile(build *data.BuildDefinition) error {
 	return nil
 }
 
+func authenticateDocker() error {
+	for _, registry := range []string{"gcr.io", "us.gcr.io"} {
+		command := fmt.Sprintf("docker login -u %s -p %s https://%s", "oauth2accesstoken", storage.GetInstance().GCRAuth.AccessToken, registry)
+		// Gross hack untill "github.com/moby/moby" can be fetched using go get
+		if err := sh.ShellCommand(command, "", false); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // BuildDockerImage will load the config within the given directory
 // and will build an image based on those parameters
 func BuildDockerImage(project string) error {
@@ -135,8 +146,7 @@ func BuildDockerImage(project string) error {
 	if err := ioutil.WriteFile("Dockerfile", dockerfile, 0644); err != nil {
 		return err
 	}
-	// Time to do the Docker build stuff
-	return docker.BuildImage(strings.Join(config.BuildArgs, " "))
+	return nil
 }
 
 // Authenticate will login to the required services only if the services

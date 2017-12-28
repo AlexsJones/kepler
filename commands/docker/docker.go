@@ -14,7 +14,7 @@ func AddCommands(cli *cli.Cli) {
 		Name: "docker",
 		Help: "docker command palette",
 		Func: func(args []string) {
-			color.Magenta("WIP")
+			color.Magenta("Please see the help for usage")
 		},
 		SubCommands: []command.Command{
 			command.Command{
@@ -41,7 +41,9 @@ func AddCommands(cli *cli.Cli) {
 						// Make sure we remove our templated Dockerfile once we are done
 						defer os.Remove("Dockerfile")
 					}
-					BuildImage(args...)
+					if err := BuildImage(args...); err != nil {
+						color.Green("Success")
+					}
 				},
 			},
 		},

@@ -12,6 +12,7 @@ import (
 
 	sh "github.com/AlexsJones/kepler/commands/shell"
 	"github.com/AlexsJones/kepler/commands/submodules"
+	"github.com/MovieStoreGuy/resources/marshal"
 	"github.com/fatih/color"
 
 	git "gopkg.in/src-d/go-git.v4"
@@ -34,7 +35,7 @@ type PackageJSON struct {
 // WriteTo will write the current contents of the PackageJSON
 // into the given directory
 func (pack *PackageJSON) WriteTo(path string) error {
-	o, err := json.MarshalIndent(pack, "", "    ")
+	o, err := marshal.PureMarshalIndent(pack, "", "    ")
 	if err != nil {
 		return err
 	}
@@ -141,8 +142,9 @@ func LocalNodeModules() (map[string]*PackageJSON, error) {
 	return Projects, nil
 }
 
-// Resolve will explore (via some graph expansion)
-// once it is completed, it will return the list of the required
+// Resolve will explore search through the given package json of project
+// and all the required projects found locally.
+// Once it is completed, it will return the list of the required
 // pacakages otherwise, return an informative error
 func Resolve(project string) ([]string, error) {
 	LocalPackages, err := LocalNodeModules()
@@ -202,7 +204,7 @@ func LinkLocalDeps() error {
 	}
 	for dir := range local {
 		color.Blue("Updating %s links", dir)
-		pack, err := LinkLocalPackages(dir, local)
+		pack, err := updatePackageContents(dir, local)
 		if err != nil {
 			return err
 		}
@@ -218,9 +220,9 @@ func LinkLocalDeps() error {
 	return nil
 }
 
-// LinkLocalPackages will update a project Dependencies if they can
+// UpdatePackageContents will update a project Dependencies if they can
 // be found locally and update their resource to be a file link
-func LinkLocalPackages(project string, local map[string]*PackageJSON) (*PackageJSON, error) {
+func updatePackageContents(project string, local map[string]*PackageJSON) (*PackageJSON, error) {
 	if _, exist := local[project]; !exist {
 		return nil, fmt.Errorf("Project can not be found locally")
 	}
@@ -232,22 +234,25 @@ func LinkLocalPackages(project string, local map[string]*PackageJSON) (*PackageJ
 	}
 	for name := range projectPackage.DevDependencies {
 		if _, exist := local[name]; exist {
-			projectPackage.Dependencies[name] = fmt.Sprintf("file:../%s", name)
+			projectPackage.DevDependencies[name] = fmt.Sprintf("file:../%s", name)
 		}
 	}
 	return projectPackage, nil
 }
 
+// RestoreBackups will itterate through all the node projects and reset
+// their package.json back to what they were before being modified.
 func RestoreBackups() error {
 	local, err := LocalNodeModules()
 	if err != nil {
 		return err
 	}
 	for name := range local {
-		filepath := path.Join(name, "package.json.bak")
-		os.Remove(filepath)
-		if _, err = os.Stat(filepath); !os.IsNotExist(err) {
-			sh.ShellCommand("git checkout HEAD -- package.json", name, false)
+		if _, err = os.Stat("package.json"); !os.IsNotExist(err) {
+			err := sh.ShellCommand("git checkout HEAD -- package.json", name, false)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

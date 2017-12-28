@@ -5,6 +5,7 @@ package node
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
@@ -94,6 +95,10 @@ func AddCommands(cli *cli.Cli) {
 				Name: "install",
 				Help: "Installs all the required vendor code",
 				Func: func(args []string) {
+					if _, err := os.Stat("package.json"); os.IsNotExist(err) {
+						color.Red("No package.json found in current directory")
+						return
+					}
 					defer func() {
 						color.Yellow("Restoring backups")
 						RestoreBackups()
@@ -104,7 +109,7 @@ func AddCommands(cli *cli.Cli) {
 						return
 					}
 					color.Yellow("Attempting to install")
-					sh.ShellCommand("npm i", "", true)
+					sh.ShellCommand(fmt.Sprintf("npm i %s", strings.Join(args, " ")), "", true)
 				},
 			},
 			command.Command{
@@ -124,7 +129,9 @@ func AddCommands(cli *cli.Cli) {
 					if err = pack.WriteTo(filepath); err != nil {
 						color.Red("Failed to write linked %s", filepath)
 						color.Red("Due to %v", err)
+						return
 					}
+					color.Green("Successfully created new package.json")
 				},
 			},
 		},
