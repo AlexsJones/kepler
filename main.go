@@ -100,10 +100,6 @@ func main() {
 			select {
 			case evt := <-stateChange:
 				switch evt {
-				case renew.RUNNING:
-				//	fmt.Println("State has changed to running")
-				case renew.FETCHING:
-					//		fmt.Println("State has changed to fetched...")
 				case renew.UPDATEFETCHED:
 					fmt.Printf("\nA kepler update has been fetched...\n")
 					time.Sleep(time.Second * 5)
