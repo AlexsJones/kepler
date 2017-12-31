@@ -16,6 +16,7 @@ Designed to do a few things well...
 - let you run multiple submodule commands.
 - work with npm modules within submodules.
 - works with kubebuilder to deploy kubernetes projects (https://github.com/AlexsJones/kubebuilder.git)
+- auto updater built in.
 ```
 
 >>> help
