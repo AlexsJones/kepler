@@ -34,7 +34,7 @@ const b string = `
 {{ .AnsiColor.Green }}( )/ )( ___)(  _ \(  )  ( ___)(  _ \
 {{ .AnsiColor.Green }} )  (  )__)  )___/ )(__  )__)  )   /
 {{ .AnsiColor.Green }}(_)\_)(____)(__)  (____)(____)(_)\_)
-{{ .AnsiColor.Default }}Kepler is a simple program for improving developer workflow
+{{ .AnsiColor.Default }}Kepler is a simple program for improving developer workflow.
 {{ .AnsiColor.Default }}Type 'help' for commands!
 {{ .AnsiColor.Default }}
 `
