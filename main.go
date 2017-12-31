@@ -105,7 +105,8 @@ func main() {
 				case renew.FETCHING:
 					//		fmt.Println("State has changed to fetched...")
 				case renew.UPDATEFETCHED:
-					fmt.Println("A kepler update has been fetched...")
+					fmt.Printf("\nA kepler update has been fetched...\n")
+					time.Sleep(time.Second * 5)
 				case renew.RESTARTING:
 					fmt.Println("-----restarting-----")
 				}
