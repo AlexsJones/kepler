@@ -119,7 +119,7 @@ func main() {
 		StateChange:       stateChange,
 		ApplicationGoPath: "github.com/AlexsJones/kepler",
 		Fetcher: &fetcher.GithubFetcher{
-			Interval:         time.Second * 5,
+			Interval:         time.Second * 60,
 			GithubRepository: "https://github.com/AlexsJones/kepler.git",
 		},
 	})
