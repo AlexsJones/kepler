@@ -8,7 +8,7 @@ _  _  ____  ____  __    ____  ____
 [![GoDoc](https://godoc.org/github.com/AlexsJones/kepler?status.svg)](https://godoc.org/github.com/AlexsJones/kepler)
 [![GitHub issues](https://img.shields.io/github/issues/AlexsJones/kepler.svg)](https://github.com/AlexsJones/kepler/issues)
 [![GitHub stars](https://img.shields.io/github/stars/AlexsJones/kepler.svg)](https://github.com/AlexsJones/kepler/stargazers)
-
+[![Maintainability](https://api.codeclimate.com/v1/badges/31068bf57e3db317466b/maintainability)](https://codeclimate.com/github/AlexsJones/kepler/maintainability)
 Designed to do a few things well...
 
 - work with github issues & pr's.
@@ -92,9 +92,3 @@ To run in a CI or as a one time command
 ```
 kepler unattended usage yar
 ```
-
-## Development
-
-[![Maintainability](https://api.codeclimate.com/v1/badges/31068bf57e3db317466b/maintainability)](https://codeclimate.com/github/AlexsJones/kepler/maintainability)
-
-As you can see maintainability is important and constant refactoring and improvement shall be made.
