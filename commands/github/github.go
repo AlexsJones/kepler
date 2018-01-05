@@ -5,10 +5,6 @@ package github
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
-	"os/exec"
-	"path"
 	"strconv"
 	"strings"
 
@@ -249,21 +245,10 @@ func AddCommands(cli *cli.Cli) {
 										fmt.Println("Please login first...")
 										return
 									}
-									if storage.GetInstance().Github.CurrentIssue == nil {
-										fmt.Println("There is no working issue set; set with github issue set")
+									if err := addRespositoryToPalette(args[0]); err != nil {
+										color.Red(err.Error())
 										return
 									}
-									if _, err := os.Stat(args[0]); os.IsNotExist(err) {
-										color.Red(fmt.Sprintf("The named repo %s does not exist as a sub directory of the current working directory", args[0]))
-										return
-									}
-									dir, err := os.Getwd()
-									if err != nil {
-										log.Fatal(err)
-									}
-									p := path.Join(dir, args[0])
-									storage.GetInstance().Github.CurrentIssue.Palette[args[0]] = p
-									storage.GetInstance().Save()
 									color.Green("Okay")
 								},
 							},
@@ -279,20 +264,8 @@ func AddCommands(cli *cli.Cli) {
 										fmt.Println("Please login first...")
 										return
 									}
-									if storage.GetInstance().Github.CurrentIssue == nil {
-										fmt.Println("There is no working issue set; set with github issue set")
-										return
-									}
-									found := false
-									for k := range storage.GetInstance().Github.CurrentIssue.Palette {
-										if strings.Compare(k, args[0]) == 0 {
-											found = true
-											delete(storage.GetInstance().Github.CurrentIssue.Palette, k)
-											storage.GetInstance().Save()
-										}
-									}
-									if found != true {
-										color.Red(fmt.Sprintf("There was no repo matching the name %s in the palette", args[0]))
+									if err := deleteRepositoryFromPalette(args[0]); err != nil {
+										color.Red(err.Error())
 										return
 									}
 									color.Green("Okay")
@@ -311,19 +284,9 @@ func AddCommands(cli *cli.Cli) {
 										fmt.Println("There is no working issue set; set with github issue set")
 										return
 									}
-									for k, v := range storage.GetInstance().Github.CurrentIssue.Palette {
-										cmd := exec.Command("git", "branch")
-										cmd.Dir = v
-										out, err := cmd.Output()
-										if err != nil {
-											color.Red(err.Error())
-											return
-										}
-										ar := strings.Split(string(out), " ")
-										trimmed := strings.TrimSuffix(string(ar[1]), "\n")
-										trimmed = strings.TrimPrefix(trimmed, "*")
-										trimmed = strings.TrimSpace(trimmed)
-										fmt.Println(fmt.Sprintf("Name: %s Branch: %s Path: %s", k, trimmed, v))
+									if err := showCurrentIssuePalette(); err != nil {
+										color.Red(err.Error())
+										return
 									}
 									color.Green("Okay")
 								},
@@ -341,7 +304,7 @@ func AddCommands(cli *cli.Cli) {
 										fmt.Println("There is no working issue set; set with github issue set")
 										return
 									}
-									storage.GetInstance().Github.CurrentIssue.Palette = make(map[string]string)
+									deleteIssuePalette()
 									color.Green("Okay")
 								},
 							},
