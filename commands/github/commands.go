@@ -261,7 +261,7 @@ func fetchTeamRepos() error {
 
 	var repoList = make(map[string]string)
 
-	repos, _, err := GithubClient.Organizations.ListTeamRepos(Ctx, int64(storage.GetInstance().Github.TeamID), &github.ListOptions{})
+	repos, _, err := GithubClient.Organizations.ListTeamRepos(Ctx, storage.GetInstance().Github.TeamID, &github.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func setTeam(team string) error {
 		color.Red(err.Error())
 		return err
 	}
-	storage.GetInstance().Github.TeamID = i
+	storage.GetInstance().Github.TeamID = int64(i)
 	storage.GetInstance().Save()
 	return nil
 }
@@ -319,7 +319,7 @@ func listTeams() error {
 	}
 	currentTeamID := storage.GetInstance().Github.TeamID
 	for _, t := range teams {
-		if currentTeamID != 0 && currentTeamID == int(t.GetID()) {
+		if currentTeamID != 0 && currentTeamID == t.GetID() {
 			fmt.Printf("Name: %s -- ID: %d [Currently set team]\n", t.GetName(), t.GetID())
 		} else {
 			fmt.Printf("Name: %s -- ID: %d\n", t.GetName(), t.GetID())
