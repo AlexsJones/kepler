@@ -160,18 +160,29 @@ func Authenticate() error {
 		client := &login.GCRLoginAgent{
 			AllowBrowser: true,
 		}
-		token, err := client.PerformLogin()
+		tkn, err := client.PerformLogin()
 		if err != nil {
 			return err
+		}
+		// Gross casting due to vendor code being used in a third party package
+		var cast interface{} = tkn
+		token, ok := cast.(*oauth2.Token)
+		if !ok {
+			return fmt.Errorf("Unable to correctly cast to *oauth.Token")
 		}
 		storage.GetInstance().GCRAuth = token
 	case time.Now().After(auth.Expiry):
 		color.Yellow("Auth has expired, trying to refresh token")
+		var cast interface{} = config.GCROAuth2Endpoint
+		endpoint, ok := cast.(oauth2.Endpoint)
+		if !ok {
+			return fmt.Errorf("Unable to oauth2.EndPoint")
+		}
 		conf := &oauth2.Config{
 			ClientID:     config.GCRCredHelperClientID,
 			ClientSecret: config.GCRCredHelperClientNotSoSecret,
 			Scopes:       config.GCRScopes,
-			Endpoint:     config.GCROAuth2Endpoint,
+			Endpoint:     endpoint,
 		}
 		// It is expected that will update our access token instead of
 		// constantly asking for us to update

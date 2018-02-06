@@ -67,7 +67,7 @@ type Github struct {
 	AccessToken  string  `json:"accesstoken"`
 	Issue        []Issue `json:"issue"`
 	Organisation string  `json:"SeedJobs"`
-	TeamID       int     `json:"teamid"`
+	TeamID       int64   `json:"teamid"`
 	CurrentIssue *Issue  `json:"currentissue"`
 }
 
