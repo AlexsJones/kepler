@@ -134,7 +134,7 @@ func AddCommands(cli *cli.Cli) {
 						return
 					}
 					color.Yellow("Attempting to install")
-					sh.ShellCommand(fmt.Sprintf("npm i %s", strings.Join(args, " ")), "", true)
+					sh.ShellCommand(fmt.Sprintf("yarn install %s", strings.Join(args, " ")), "", true)
 				},
 			},
 			command.Command{
