@@ -104,17 +104,17 @@ func AddCommands(cli *cli.Cli) {
 						color.Red("Failed to link: %s", err.Error())
 						return
 					}
-				}
+				},
 			},
 			command.Command{
 				Name: "local-restore",
 				Help: "Restores the original package.json files",
 				Func: func(args []string) {
-						color.Yellow("Restoring backups")
-						if err := RestoreBackups(); err != nil {
-							color.Red("Failed to restore backups due to %v", err)
-						}
-				}
+					color.Yellow("Restoring backups")
+					if err := RestoreBackups(); err != nil {
+						color.Red("Failed to restore backups due to %v", err)
+					}
+				},
 			},
 			command.Command{
 				Name: "install",
@@ -141,7 +141,11 @@ func AddCommands(cli *cli.Cli) {
 				Name: "init",
 				Help: "Create the package json for a meta repo",
 				Func: func(args []string) {
-					pack, err := CreateMetaPackageJson()
+					var skipIgnores bool
+					if strings.Contains(strings.Join(args, " "), "--no-ignore") {
+						skipIgnores = true
+					}
+					pack, err := CreateMetaPackageJson(skipIgnores)
 					if err != nil {
 						color.Red("Failed to generate meta package json, %s", err.Error())
 						return

@@ -14,6 +14,7 @@ import (
 	"github.com/AlexsJones/kepler/commands/submodules"
 	"github.com/MovieStoreGuy/resources/marshal"
 	"github.com/fatih/color"
+	yaml "gopkg.in/yaml.v2"
 
 	git "gopkg.in/src-d/go-git.v4"
 )
@@ -258,7 +259,7 @@ func RestoreBackups() error {
 	return nil
 }
 
-func CreateMetaPackageJson() (*PackageJSON, error) {
+func CreateMetaPackageJson(skipIgnores bool) (*PackageJSON, error) {
 	metaPackage := &PackageJSON{
 		Version:         "1.0.0",
 		Description:     "An auto generated package json",
@@ -269,17 +270,37 @@ func CreateMetaPackageJson() (*PackageJSON, error) {
 			"test": "true",
 		},
 	}
-	if name, err := os.Getwd(); err != nil {
-		return nil, err
-	} else {
-		metaPackage.Name = filepath.Base(name)
+	// delcaring IgnoreSet her as its not used anywhere else
+	type ignoreSet struct {
+		Projects []string `json:"Projects" yaml:"Projects"`
 	}
+	name, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	metaPackage.Name = filepath.Base(name)
 	modules, err := LocalNodeModules()
 	if err != nil {
 		return nil, err
 	}
+	ignores := map[string]bool{}
+	if _, err := os.Stat(".keplerignore"); !os.IsNotExist(err) && !skipIgnores {
+		buf, err := ioutil.ReadFile(".keplerignore")
+		if err != nil {
+			return nil, err
+		}
+		var info ignoreSet
+		if err = yaml.Unmarshal([]byte(buf), &info); err != nil {
+			return nil, err
+		}
+		for _, project := range info.Projects {
+			ignores[project] = true
+		}
+	}
 	for name := range modules {
-		metaPackage.Dependencies[name] = fmt.Sprintf("file:%s", name)
+		if !ignores[name] {
+			metaPackage.Dependencies[name] = fmt.Sprintf("file:%s", name)
+		}
 	}
 	return metaPackage, nil
 }
