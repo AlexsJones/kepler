@@ -270,7 +270,7 @@ func CreateMetaPackageJson(skipIgnores bool) (*PackageJSON, error) {
 			"test": "true",
 		},
 	}
-	// delcaring IgnoreSet her as its not used anywhere else
+	// delcaring IgnoreSet here as its not used anywhere else
 	type ignoreSet struct {
 		Projects []string `json:"Projects" yaml:"Projects"`
 	}
