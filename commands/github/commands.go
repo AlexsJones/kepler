@@ -308,7 +308,7 @@ func setTeam(team string) error {
 		color.Red(err.Error())
 		return err
 	}
-	storage.GetInstance().Github.TeamID = i
+	storage.GetInstance().Github.TeamID = int64(i)
 	storage.GetInstance().Save()
 	return nil
 }

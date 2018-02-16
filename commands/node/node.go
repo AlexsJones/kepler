@@ -92,6 +92,31 @@ func AddCommands(cli *cli.Cli) {
 				},
 			},
 			command.Command{
+				Name: "local-link",
+				Help: "Links all the local package.json",
+				Func: func(args []string) {
+					if _, err := os.Stat("package.json"); os.IsNotExist(err) {
+						color.Red("No package.json found in current directory")
+						return
+					}
+					color.Yellow("Attempting to link packages")
+					if err := LinkLocalDeps(); err != nil {
+						color.Red("Failed to link: %s", err.Error())
+						return
+					}
+				},
+			},
+			command.Command{
+				Name: "local-restore",
+				Help: "Restores the original package.json files",
+				Func: func(args []string) {
+					color.Yellow("Restoring backups")
+					if err := RestoreBackups(); err != nil {
+						color.Red("Failed to restore backups due to %v", err)
+					}
+				},
+			},
+			command.Command{
 				Name: "install",
 				Help: "Installs all the required vendor code",
 				Func: func(args []string) {
@@ -109,14 +134,18 @@ func AddCommands(cli *cli.Cli) {
 						return
 					}
 					color.Yellow("Attempting to install")
-					sh.ShellCommand(fmt.Sprintf("npm i %s", strings.Join(args, " ")), "", true)
+					sh.ShellCommand(fmt.Sprintf("yarn install %s", strings.Join(args, " ")), "", true)
 				},
 			},
 			command.Command{
 				Name: "init",
 				Help: "Create the package json for a meta repo",
 				Func: func(args []string) {
-					pack, err := CreateMetaPackageJson()
+					var skipIgnores bool
+					if strings.Contains(strings.Join(args, " "), "--no-ignore") {
+						skipIgnores = true
+					}
+					pack, err := CreateMetaPackageJson(skipIgnores)
 					if err != nil {
 						color.Red("Failed to generate meta package json, %s", err.Error())
 						return
