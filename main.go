@@ -111,6 +111,8 @@ func main() {
 			time.Sleep(time.Second)
 		}
 	}()
+
+	fmt.Println("You suck!")
 	renew.Run(&renew.Configuration{
 		Process:           mainInit,
 		StateChange:       stateChange,
@@ -120,5 +122,4 @@ func main() {
 			GithubRepository: "https://github.com/AlexsJones/kepler.git",
 		},
 	})
-
 }
