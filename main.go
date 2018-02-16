@@ -112,7 +112,6 @@ func main() {
 		}
 	}()
 
-	fmt.Println("You suck!")
 	renew.Run(&renew.Configuration{
 		Process:           mainInit,
 		StateChange:       stateChange,
