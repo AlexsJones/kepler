@@ -9,7 +9,7 @@ _  _  ____  ____  __    ____  ____
 [![GitHub issues](https://img.shields.io/github/issues/AlexsJones/kepler.svg)](https://github.com/AlexsJones/kepler/issues)
 [![GitHub stars](https://img.shields.io/github/stars/AlexsJones/kepler.svg)](https://github.com/AlexsJones/kepler/stargazers)
 [![Maintainability](https://api.codeclimate.com/v1/badges/31068bf57e3db317466b/maintainability)](https://codeclimate.com/github/AlexsJones/kepler/maintainability)
-[![Go Report Card](https://goreportcard.com/badge/github.com/AlexsJones/renew)](https://goreportcard.com/report/github.com/AlexsJones/renew)
+[![Go Report Card](https://goreportcard.com/badge/github.com/AlexsJones/kepler)](https://goreportcard.com/report/github.com/AlexsJones/kepler)
 
 Designed to do a few things well...
 
