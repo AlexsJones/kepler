@@ -26,6 +26,12 @@
   revision = "bbbf4293cbba951c73fb12425a0e5bc7343fcaeb"
 
 [[projects]]
+  name = "github.com/DATA-DOG/godog"
+  packages = [".","colors","gherkin"]
+  revision = "0371765570d36374bef4ab9f62ed0491f0862a3c"
+  version = "v0.7.6"
+
+[[projects]]
   name = "github.com/GoogleCloudPlatform/docker-credential-gcr"
   packages = ["auth","config","util","util/cmd"]
   revision = "4cc7a4b6ef28e79ea9f2c708bcb02f8e93c6aec0"
@@ -250,6 +256,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7ec220b65ab4a7618cc106d1f80d94d2d60b98de833329b98d017c2e614d0852"
+  inputs-digest = "624a60726cb91a436106ff645b845b4f1688eb0de2733f6eae822cfdf14f59b3"
   solver-name = "gps-cdcl"
   solver-version = 1
