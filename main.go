@@ -11,7 +11,6 @@ import (
 	"os/exec"
 	"path"
 	"runtime"
-	"time"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/kepler/commands/docker"
@@ -21,8 +20,6 @@ import (
 	"github.com/AlexsJones/kepler/commands/palette"
 	"github.com/AlexsJones/kepler/commands/storage"
 	"github.com/AlexsJones/kepler/commands/submodules"
-	"github.com/AlexsJones/renew"
-	"github.com/AlexsJones/renew/fetcher"
 	"github.com/dimiro1/banner"
 )
 
@@ -67,7 +64,7 @@ func processVersion() {
 		fmt.Printf("Running kepler version %s\n", version)
 	}
 }
-func mainInit() {
+func main() {
 	banner.Init(os.Stdout, true, true, bytes.NewBufferString(b))
 
 	processVersion()
@@ -90,35 +87,4 @@ func mainInit() {
 	}
 	//-------------------------------------------
 	cli.Run()
-}
-
-func main() {
-	stateChange := make(chan renew.StatusCode)
-
-	go func() {
-		for {
-			select {
-			case evt := <-stateChange:
-				switch evt {
-				case renew.UPDATEFETCHED:
-					fmt.Printf("\nA kepler update has been fetched...\n")
-					time.Sleep(time.Second * 5)
-				case renew.RESTARTING:
-					fmt.Println("-----restarting-----")
-				}
-			}
-
-			time.Sleep(time.Second)
-		}
-	}()
-
-	renew.Run(&renew.Configuration{
-		Process:           mainInit,
-		StateChange:       stateChange,
-		ApplicationGoPath: "github.com/AlexsJones/kepler",
-		Fetcher: &fetcher.GithubFetcher{
-			Interval:         time.Second * 60,
-			GithubRepository: "https://github.com/AlexsJones/kepler.git",
-		},
-	})
 }
