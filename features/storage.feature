@@ -4,5 +4,10 @@ Feature: Basic storage validation
   I need to test storage
 
   Scenario: Storage
-  Given I want to test the storage commands run as expected
-  Then I am am able to validate this by initialization
+  Given I get an instance of storage
+  Then I am able to validate that the instance is an initialised object
+
+
+  Scenario: Storage of Data
+  Given I wish to store an Access Token with value of "test-1234"
+  Then it should save correctly with value of "test-1234"
