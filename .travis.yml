@@ -1,8 +1,5 @@
 ---
 language: go
-
-env:
-  - DEP_VERSION="0.4.1"
 os:
   - linux
 
@@ -12,12 +9,11 @@ go:
   - "1.10"
 
 before_install:
-  - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64 -o $GOPATH/bin/dep
-  - chmod +x $GOPATH/bin/dep
+  - go get github.com/Masterminds/glide
   - go get github.com/DATA-DOG/godog/cmd/godog
 
 install:
-  - dep ensure
+  - glide install
 
 script:
   - go vet -v $(go list ./... | grep -v /vendor/)

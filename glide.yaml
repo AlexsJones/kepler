@@ -1,0 +1,34 @@
+package: github.com/AlexsJones/kepler
+import:
+- package: github.com/AlexsJones/cli
+  subpackages:
+  - cli
+  - command
+- package: github.com/AlexsJones/cloud-transponder
+  subpackages:
+  - events
+  - events/pubsub
+- package: github.com/AlexsJones/kubebuilder
+  subpackages:
+  - src/data
+- package: github.com/GoogleCloudPlatform/docker-credential-gcr
+  subpackages:
+  - auth
+  - config
+- package: github.com/MovieStoreGuy/resources
+  subpackages:
+  - marshal
+- package: github.com/dimiro1/banner
+- package: github.com/fatih/color
+- package: github.com/gogo/protobuf
+  subpackages:
+  - proto
+- package: github.com/google/go-github
+  subpackages:
+  - github
+- package: github.com/mitchellh/go-homedir
+- package: golang.org/x/oauth2
+- package: gopkg.in/src-d/go-git.v4
+- package: gopkg.in/yaml.v2
+testImport:
+- package: github.com/DATA-DOG/godog
