@@ -3,14 +3,13 @@
 package submodules
 
 import (
+	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/AlexsJones/cli/cli"
 	"github.com/AlexsJones/cli/command"
 	sh "github.com/AlexsJones/kepler/commands/shell"
-	"github.com/fatih/color"
 	"gopkg.in/src-d/go-git.v4"
 )
 
@@ -55,23 +54,23 @@ func loopSubmodules(path string, callback func(sub *git.Submodule) error) error 
 	r, err := git.PlainOpen(path)
 	if err != nil {
 		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	worktree, err := r.Worktree()
 	if err != nil {
 		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	submodules, err := worktree.Submodules()
 	if err != nil {
 		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
 	for _, sub := range submodules {
 		callback(sub)
 	}
 	if len(submodules) == 0 {
-		color.Red("No submodules found")
+		return errors.New("No submodules found")
 	}
 	return nil
 }
@@ -79,11 +78,10 @@ func loopSubmodules(path string, callback func(sub *git.Submodule) error) error 
 //LoopSubmodules will run through all submodules in the current repository
 //It will return a nil error object on success
 func LoopSubmodules(callback func(sub *git.Submodule)) error {
-	loopSubmodules(".", func(sub *git.Submodule) error {
+	return loopSubmodules(".", func(sub *git.Submodule) error {
 		callback(sub)
 		return nil
 	})
-	return nil
 }
 
 //CommandSubmodules allows a shell command to be run in the current repository submodules
@@ -91,11 +89,10 @@ func LoopSubmodules(callback func(sub *git.Submodule)) error {
 //It will return a nil error object on success
 func CommandSubmodules(output string) error {
 
-	loopSubmodules(".", func(sub *git.Submodule) error {
+	return loopSubmodules(".", func(sub *git.Submodule) error {
 
 		sh.ShellCommand(output, sub.Config().Path, false)
 
 		return nil
 	})
-	return nil
 }
